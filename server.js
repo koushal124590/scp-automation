@@ -19,20 +19,11 @@ app.use('/gif', express.static(path.join(__dirname, 'gif')));
 // Serve the React/Vite Dashboard
 app.use(express.static(path.join(__dirname, 'frontend/dist')));
 
-// Configure Multer for Credentials Upload
-const credentialsStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, __dirname);
-    },
-    filename: function (req, file, cb) {
-        if (file.originalname === 'credentials.json' || file.originalname === 'token.json') {
-            cb(null, file.originalname);
-        } else {
-            cb(new Error("Invalid filename. Only credentials.json or token.json allowed."));
-        }
-    }
+// Configure Multer for Credentials Upload (Smart Auto-Detection)
+const uploadCredentials = multer({ 
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
-const uploadCredentials = multer({ storage: credentialsStorage });
 
 // Configure Multer for Business Card Upload (PNG, JPG, SVG)
 const cardStorage = multer.diskStorage({
@@ -96,10 +87,56 @@ app.post('/api/config', async (req, res) => {
 });
 
 // ── API: Credentials Upload ──
-app.post('/api/upload-credentials', uploadCredentials.array('credentials', 2), (req, res) => {
+app.post('/api/upload-credentials', uploadCredentials.array('credentials', 5), async (req, res) => {
     try {
-        res.json({ success: true, message: 'Credentials files uploaded successfully.' });
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: 'No files selected for upload.' });
+        }
+
+        let savedCredentials = false;
+        let savedToken = false;
+
+        for (const file of req.files) {
+            let jsonContent;
+            try {
+                jsonContent = JSON.parse(file.buffer.toString('utf8'));
+            } catch (e) {
+                return res.status(400).json({ error: `File "${file.originalname}" is not valid JSON.` });
+            }
+
+            // Check if it's a Google OAuth Client Secret (credentials.json)
+            if (jsonContent.installed || jsonContent.web || jsonContent.client_id || file.originalname.toLowerCase().includes('client_secret') || file.originalname === 'credentials.json') {
+                await fs.writeFile(path.join(__dirname, 'credentials.json'), JSON.stringify(jsonContent, null, 2));
+                savedCredentials = true;
+                console.log(`✅ Saved credentials.json from: ${file.originalname}`);
+            }
+            // Check if it's a Token file (token.json)
+            else if (jsonContent.refresh_token || jsonContent.access_token || jsonContent.type === 'authorized_user' || file.originalname === 'token.json') {
+                await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(jsonContent, null, 2));
+                savedToken = true;
+                console.log(`✅ Saved token.json from: ${file.originalname}`);
+            }
+            // Fallback by filename
+            else if (file.originalname.toLowerCase().includes('cred')) {
+                await fs.writeFile(path.join(__dirname, 'credentials.json'), JSON.stringify(jsonContent, null, 2));
+                savedCredentials = true;
+            } else if (file.originalname.toLowerCase().includes('token')) {
+                await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(jsonContent, null, 2));
+                savedToken = true;
+            }
+        }
+
+        if (savedCredentials || savedToken) {
+            const summary = [
+                savedCredentials ? 'credentials.json (OAuth Client Secret)' : null,
+                savedToken ? 'token.json (Authorized Token)' : null
+            ].filter(Boolean).join(' & ');
+            return res.json({ success: true, message: `Successfully recognized and saved: ${summary}!` });
+        } else {
+            return res.status(400).json({ error: 'Could not detect valid Google OAuth credentials or token JSON.' });
+        }
     } catch (err) {
+        console.error('Credentials upload error:', err);
         res.status(400).json({ error: err.message });
     }
 });

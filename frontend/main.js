@@ -222,7 +222,7 @@ class WebGLApp {
     const isDark = document.body.classList.contains('theme-dark');
     const heroColor = isDark ? 0xFFFFFF : 0x000000;
 
-    // 1. Hero SCP Logo
+    // 1. Hero SCP Logo (Only in the 3d-hero-keychain container)
     const heroLogo = this.logoMaster.clone();
     heroLogo.traverse(child => {
       if (child.isMesh) {
@@ -231,24 +231,6 @@ class WebGLApp {
     });
     this.scene.add(heroLogo);
     this.objects.push({ mesh: heroLogo, domId: '3d-hero-keychain', isHero: true });
-
-    // 2. We don't have explicit DOM IDs for the massive 12-card grid geometries anymore,
-    // so we can dynamically inject small floating logos into any .squircle-card
-    const cards = document.querySelectorAll('.dark-section .squircle-card');
-    cards.forEach((card, idx) => {
-       // Create a temporary ID if it doesn't have one
-       const cardId = 'card-logo-' + idx;
-       card.id = card.id || cardId;
-       
-       const cardLogo = this.logoMaster.clone();
-       // Make them a lighter plastic color for contrast in the dark section
-       cardLogo.children[0].children.forEach(mesh => {
-         mesh.material = this.createPlasticMaterial(0xFFFFFF);
-       });
-
-       this.scene.add(cardLogo);
-       this.objects.push({ mesh: cardLogo, domId: card.id, isHero: false, randSpeed: 0.5 + Math.random() });
-    });
     
     this.updatePositions();
   }
