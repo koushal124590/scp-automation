@@ -92,20 +92,41 @@ app.get('/api/auth/google', async (req, res) => {
         const credPath = path.join(__dirname, 'credentials.json');
         const tokenPath = path.join(__dirname, 'token.json');
 
-        let clientId, clientSecret;
-        if (fsSync.existsSync(credPath)) {
-            const creds = JSON.parse(await fs.readFile(credPath, 'utf8'));
-            const key = creds.installed || creds.web;
-            clientId = key ? key.client_id : null;
-            clientSecret = key ? key.client_secret : null;
-        } else if (fsSync.existsSync(tokenPath)) {
-            const token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
-            clientId = token.client_id;
-            clientSecret = token.client_secret;
+        let clientId = process.env.GOOGLE_CLIENT_ID;
+        let clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+        if (process.env.GOOGLE_CREDENTIALS_JSON) {
+            try {
+                const creds = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+                const key = creds.installed || creds.web;
+                if (key) { clientId = key.client_id; clientSecret = key.client_secret; }
+            } catch(e) {}
+        }
+
+        if ((!clientId || !clientSecret) && fsSync.existsSync(credPath)) {
+            try {
+                const creds = JSON.parse(await fs.readFile(credPath, 'utf8'));
+                const key = creds.installed || creds.web;
+                if (key) { clientId = key.client_id; clientSecret = key.client_secret; }
+            } catch(e) {}
+        }
+
+        if ((!clientId || !clientSecret) && fsSync.existsSync(tokenPath)) {
+            try {
+                const token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
+                if (token.client_id) clientId = token.client_id;
+                if (token.client_secret) clientSecret = token.client_secret;
+            } catch(e) {}
         }
 
         if (!clientId || !clientSecret) {
-            return res.status(400).send("OAuth Client ID & Secret not configured yet. Please upload credentials.json in Admin Portal first.");
+            return res.status(400).send(`
+                <div style="font-family: sans-serif; max-width: 540px; margin: 60px auto; padding: 30px; border-radius: 16px; background: #111; color: #eee; border: 1px solid #333; text-align: center;">
+                    <h2 style="color: #EF4444; margin-bottom: 12px;">OAuth Credentials Required</h2>
+                    <p style="color: #aaa; line-height: 1.6; margin-bottom: 20px;">Please upload your <strong>credentials.json</strong> in the <strong>Admin Portal Vault</strong> to activate 1-Click Google Sign-In for all users.</p>
+                    <a href="/?portal=admin" style="display: inline-block; padding: 10px 20px; background: #3B82F6; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">Go to Admin Portal →</a>
+                </div>
+            `);
         }
 
         const host = req.get('host');
@@ -140,16 +161,30 @@ app.get('/api/auth/google/callback', async (req, res) => {
         const credPath = path.join(__dirname, 'credentials.json');
         const tokenPath = path.join(__dirname, 'token.json');
 
-        let clientId, clientSecret;
+        let clientId = process.env.GOOGLE_CLIENT_ID;
+        let clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+        if (process.env.GOOGLE_CREDENTIALS_JSON) {
+            try {
+                const creds = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+                const key = creds.installed || creds.web;
+                if (key) { clientId = key.client_id; clientSecret = key.client_secret; }
+            } catch(e) {}
+        }
+
         if (fsSync.existsSync(credPath)) {
-            const creds = JSON.parse(await fs.readFile(credPath, 'utf8'));
-            const key = creds.installed || creds.web;
-            clientId = key ? key.client_id : null;
-            clientSecret = key ? key.client_secret : null;
+            try {
+                const creds = JSON.parse(await fs.readFile(credPath, 'utf8'));
+                const key = creds.installed || creds.web;
+                if (key && key.client_id) clientId = key.client_id;
+                if (key && key.client_secret) clientSecret = key.client_secret;
+            } catch(e) {}
         } else if (fsSync.existsSync(tokenPath)) {
-            const token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
-            clientId = token.client_id;
-            clientSecret = token.client_secret;
+            try {
+                const token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
+                if (token.client_id) clientId = token.client_id;
+                if (token.client_secret) clientSecret = token.client_secret;
+            } catch(e) {}
         }
 
         const host = req.get('host');
@@ -312,7 +347,19 @@ async function getAuthenticatedClient() {
     } catch (e) {}
 
     if (!token && !credentials) {
-        throw new Error("Missing authentication credentials. Please upload your token.json or credentials.json in the dashboard.");
+        if (process.env.GOOGLE_TOKEN_JSON) {
+            try {
+                token = JSON.parse(process.env.GOOGLE_TOKEN_JSON);
+            } catch(e) {}
+        } else if (process.env.GOOGLE_CREDENTIALS_JSON) {
+            try {
+                credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+            } catch(e) {}
+        }
+    }
+
+    if (!token && !credentials) {
+        throw new Error("Missing authentication credentials. Please upload your credentials.json and token.json in Admin Portal.");
     }
 
     // 1. Authorized User Token (token.json alone has client_id, client_secret, refresh_token)

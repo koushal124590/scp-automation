@@ -373,3 +373,82 @@ body:not(.theme-dark) .btn-secondary {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ════════════════════════════════
+   IPHONE FACE ID / PASSCODE VERIFICATION TICK
+   ════════════════════════════════ */
+.faceid-wrapper {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 20px;
+}
+
+.faceid-checkmark {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3.5;
+  stroke: #10B981;
+  stroke-miterlimit: 10;
+  box-shadow: inset 0px 0px 0px #10B981;
+  animation: faceidFill .4s ease-in-out .4s forwards, faceidScale .3s ease-in-out .9s both;
+}
+
+.faceid-checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 3.5;
+  stroke-miterlimit: 10;
+  stroke: #10B981;
+  fill: none;
+  animation: faceidStroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.faceid-checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 4;
+  stroke: #FFFFFF;
+  animation: faceidStrokeCheck 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.55s forwards;
+}
+
+@keyframes faceidStroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes faceidStrokeCheck {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes faceidFill {
+  100% {
+    box-shadow: inset 0px 0px 0px 42px #10B981;
+  }
+}
+
+@keyframes faceidScale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.12, 1.12, 1);
+  }
+}
+
+.shake-input {
+  animation: shakeHorizontal 0.4s ease;
+}
+
+@keyframes shakeHorizontal {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+

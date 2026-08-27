@@ -27,7 +27,7 @@
 
     <main id="app">
       <!-- ═══════════════════════════════════════════ -->
-      <!-- 🚀 GATEWAY / LOGIN AUTHENTICATION SCREEN   -->
+      <!-- 1. 🚀 GATEWAY / LOGIN AUTHENTICATION SCREEN -->
       <!-- ═══════════════════════════════════════════ -->
       <section class="container text-center portal-view active" id="gateway-view" style="padding-top: 150px; padding-bottom: 60px;">
         <div id="3d-hero-keychain" style="height: 180px; margin-bottom: 24px;"></div>
@@ -65,7 +65,7 @@
             </div>
           </div>
 
-          <!-- Gateway Card 2: Admin Portal Login (Passcode Protected 2007) -->
+          <!-- Gateway Card 2: Admin Portal Login Button -->
           <div class="squircle-card" style="padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between;">
             <div class="card-crosshair top-left"></div>
             <div class="card-crosshair top-right"></div>
@@ -74,21 +74,16 @@
                 FACILITY DIRECTORS
               </div>
               <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">🛡️ Admin Portal</h2>
-              <p class="t-body" style="margin-bottom: 18px; font-size: 14px; line-height: 1.6;">
-                Restricted facility administration console. Requires Passcode verification for API keys vault, engine telemetry, and overrides.
+              <p class="t-body" style="margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
+                Restricted facility administration console. Manage Google API keys vault, configure background polling loops, and inspect runtime telemetry.
               </p>
             </div>
 
             <div>
-              <div style="margin-bottom: 10px;">
-                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; color: var(--text-80);">Admin Passcode</label>
-                <input type="password" id="admin-passcode-input" class="form-input" placeholder="Enter PIN" style="text-align: center; letter-spacing: 4px; font-size: 16px; font-weight: 700;" />
-              </div>
-              <p id="admin-passcode-error" style="color: #EF4444; font-size: 12px; font-weight: 600; text-align: center; display: none; margin-bottom: 8px;">❌ Invalid Passcode. Access Denied.</p>
-              <button type="button" class="btn btn-primary" id="gateway-open-admin-btn" style="width: 100%; height: 44px; font-size: 14px; margin-bottom: 8px;">
-                🛡️ Unlock Admin Console
+              <button type="button" class="btn btn-primary" id="gateway-enter-admin-btn" style="width: 100%; height: 48px; font-size: 15px; font-weight: 600; margin-bottom: 10px;">
+                🛡️ Enter Admin Console →
               </button>
-              <button type="button" class="btn btn-secondary" id="gateway-admin-docs-btn" style="width: 100%; height: 38px; font-size: 12px;">
+              <button type="button" class="btn btn-secondary" id="gateway-admin-docs-btn" style="width: 100%; height: 40px; font-size: 13px;">
                 📖 Credentials Guide
               </button>
             </div>
@@ -98,7 +93,58 @@
       </section>
 
       <!-- ═══════════════════════════════════════════ -->
-      <!-- 👤 USER / CLIENT PORTAL DASHBOARD          -->
+      <!-- 2. 🔒 DEDICATED ADMIN PASSCODE SCREEN      -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="container text-center portal-view" id="admin-passcode-view" style="display: none; padding-top: 140px; padding-bottom: 60px;">
+        <div id="3d-passcode-keychain" style="height: 150px; margin-bottom: 20px;"></div>
+
+        <div class="squircle-card" style="max-width: 480px; margin: 0 auto; padding: 40px 32px; text-align: center;">
+          <div class="card-crosshair top-left"></div>
+          <div class="card-crosshair top-right"></div>
+          
+          <!-- Passcode Entry Form -->
+          <div id="passcode-form-container">
+            <div style="display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); color: #10B981; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 12px;">
+              SECURITY CLEARANCE REQUIRED
+            </div>
+            <h2 class="t-display" style="font-size: 28px; margin-bottom: 10px; color: var(--text-100);">
+              Administrator Verification
+            </h2>
+            <p class="t-body" style="font-size: 14px; margin-bottom: 24px;">
+              Enter your 4-digit security PIN to unlock the facility console.
+            </p>
+
+            <div style="margin-bottom: 16px;">
+              <input type="password" id="admin-passcode-input" class="form-input" placeholder="••••" maxlength="4" style="text-align: center; letter-spacing: 12px; font-size: 28px; font-weight: 700; max-width: 240px; margin: 0 auto; display: block;" />
+            </div>
+
+            <p id="admin-passcode-error" style="color: #EF4444; font-size: 13px; font-weight: 600; text-align: center; display: none; margin-bottom: 14px;"></p>
+
+            <button type="button" id="admin-passcode-verify-btn" class="btn btn-primary" style="width: 100%; max-width: 240px; height: 46px; font-size: 15px; font-weight: 600; margin: 0 auto 12px; display: block;">
+              Verify Passcode →
+            </button>
+            <button type="button" class="btn btn-secondary exit-portal-btn" style="max-width: 240px; margin: 0 auto; display: block; font-size: 13px;">
+              ← Back to Gateway
+            </button>
+          </div>
+
+          <!-- FaceID / Apple iPhone Face Scan Verified Tick Animation -->
+          <div id="passcode-verified-container" style="display: none; padding: 20px 0;">
+            <div class="faceid-wrapper">
+              <svg class="faceid-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="faceid-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="faceid-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+              </svg>
+            </div>
+            <h3 style="font-size: 20px; font-weight: 700; color: #10B981; margin-bottom: 6px; letter-spacing: 0.05em;">IDENTITY VERIFIED</h3>
+            <p style="font-size: 14px; color: var(--text-80);">Opening Facility Console...</p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- 3. 👤 USER / CLIENT PORTAL DASHBOARD        -->
       <!-- ═══════════════════════════════════════════ -->
       <section class="container portal-view" id="user-portal-view" style="display: none; padding-top: 130px; padding-bottom: 60px;">
         <div class="text-center" style="margin-bottom: 20px;">
@@ -232,7 +278,7 @@
       </section>
 
       <!-- ═══════════════════════════════════════════ -->
-      <!-- 🛡️ ADMIN FACILITY PORTAL DASHBOARD         -->
+      <!-- 4. 🛡️ ADMIN FACILITY PORTAL DASHBOARD       -->
       <!-- ═══════════════════════════════════════════ -->
       <section class="container portal-view" id="admin-portal-view" style="display: none; padding-top: 130px; padding-bottom: 60px;">
         <div class="text-center" style="margin-bottom: 20px;">

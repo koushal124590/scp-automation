@@ -226,9 +226,10 @@ class WebGLApp {
     this.objects.forEach(obj => this.scene.remove(obj.mesh));
     this.objects = [];
 
-    // 3D Rotating Logo for Gateway, User Dashboard, and Admin Dashboard
+    // 3D Rotating Logo for Gateway, Admin Passcode, User Dashboard, and Admin Dashboard
     const containers = [
       { id: '3d-hero-keychain', scaleMult: 1.5 },
+      { id: '3d-passcode-keychain', scaleMult: 1.3 },
       { id: '3d-user-keychain', scaleMult: 1.2 },
       { id: '3d-admin-keychain', scaleMult: 1.2 }
     ];
@@ -377,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 2. Gateway & Dual Portal Router
   const gatewayView = document.getElementById('gateway-view');
+  const adminPasscodeView = document.getElementById('admin-passcode-view');
   const userPortalView = document.getElementById('user-portal-view');
   const adminPortalView = document.getElementById('admin-portal-view');
   const navPortalLinks = document.getElementById('nav-portal-links');
@@ -386,9 +388,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabUser = document.getElementById('tab-user-portal');
   const tabAdmin = document.getElementById('tab-admin-portal');
 
+  const passcodeForm = document.getElementById('passcode-form-container');
+  const passcodeVerified = document.getElementById('passcode-verified-container');
+  const adminPasscodeInput = document.getElementById('admin-passcode-input');
+  const adminPasscodeError = document.getElementById('admin-passcode-error');
+  const adminPasscodeVerifyBtn = document.getElementById('admin-passcode-verify-btn');
+  const gatewayEnterAdminBtn = document.getElementById('gateway-enter-admin-btn');
+  const gatewayAdminDocsBtn = document.getElementById('gateway-admin-docs-btn');
+  const exitPortalBtns = document.querySelectorAll('.exit-portal-btn');
+
   function openPortal(portal) {
     if (portal === 'admin') {
       if (gatewayView) gatewayView.style.display = 'none';
+      if (adminPasscodeView) adminPasscodeView.style.display = 'none';
       if (userPortalView) userPortalView.style.display = 'none';
       if (adminPortalView) adminPortalView.style.display = 'block';
       if (navPortalLinks) navPortalLinks.style.display = 'flex';
@@ -396,8 +408,28 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabAdmin) tabAdmin.classList.add('active');
       if (tabUser) tabUser.classList.remove('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (portal === 'admin-passcode') {
+      if (gatewayView) gatewayView.style.display = 'none';
+      if (userPortalView) userPortalView.style.display = 'none';
+      if (adminPortalView) adminPortalView.style.display = 'none';
+      if (adminPasscodeView) adminPasscodeView.style.display = 'block';
+      if (navPortalLinks) navPortalLinks.style.display = 'none';
+      if (navSignOutBtn) navSignOutBtn.style.display = 'none';
+      
+      // Reset passcode view state
+      if (passcodeForm) passcodeForm.style.display = 'block';
+      if (passcodeVerified) passcodeVerified.style.display = 'none';
+      if (adminPasscodeInput) {
+        adminPasscodeInput.value = '';
+        adminPasscodeInput.classList.remove('shake-input');
+        adminPasscodeInput.style.borderColor = 'var(--input-border)';
+        setTimeout(() => adminPasscodeInput.focus(), 100);
+      }
+      if (adminPasscodeError) adminPasscodeError.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (portal === 'user') {
       if (gatewayView) gatewayView.style.display = 'none';
+      if (adminPasscodeView) adminPasscodeView.style.display = 'none';
       if (adminPortalView) adminPortalView.style.display = 'none';
       if (userPortalView) userPortalView.style.display = 'block';
       if (navPortalLinks) navPortalLinks.style.display = 'flex';
@@ -408,6 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // Gateway login screen
       if (gatewayView) gatewayView.style.display = 'block';
+      if (adminPasscodeView) adminPasscodeView.style.display = 'none';
       if (userPortalView) userPortalView.style.display = 'none';
       if (adminPortalView) adminPortalView.style.display = 'none';
       if (navPortalLinks) navPortalLinks.style.display = 'none';
@@ -416,44 +449,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (window.webglApp) {
-      setTimeout(() => { window.webglApp.updatePositions(); }, 50);
+      setTimeout(() => { window.webglApp.updatePositions(); }, 60);
     }
   }
 
-  // Admin Passcode 2007 Protection & Triggers
-  const adminPasscodeInput = document.getElementById('admin-passcode-input');
-  const adminPasscodeError = document.getElementById('admin-passcode-error');
-  const gatewayOpenAdminBtn = document.getElementById('gateway-open-admin-btn');
-  const gatewayAdminDocsBtn = document.getElementById('gateway-admin-docs-btn');
-  const exitPortalBtns = document.querySelectorAll('.exit-portal-btn');
-
-  if (gatewayOpenAdminBtn) {
-    gatewayOpenAdminBtn.addEventListener('click', () => {
-      const code = adminPasscodeInput ? adminPasscodeInput.value.trim() : '';
-      if (code === '2007') {
-        if (adminPasscodeError) adminPasscodeError.style.display = 'none';
-        if (adminPasscodeInput) {
-          adminPasscodeInput.value = '';
-          adminPasscodeInput.style.borderColor = 'var(--input-border)';
-        }
-        openPortal('admin');
-      } else {
-        if (adminPasscodeError) {
-          adminPasscodeError.style.display = 'block';
-          adminPasscodeError.innerText = "❌ Incorrect Passcode. Access Denied.";
-        }
-        if (adminPasscodeInput) {
-          adminPasscodeInput.style.borderColor = "#EF4444";
-          adminPasscodeInput.focus();
-        }
-      }
+  // 1. Gateway Admin Button -> Opens Dedicated Passcode Page
+  if (gatewayEnterAdminBtn) {
+    gatewayEnterAdminBtn.addEventListener('click', () => {
+      openPortal('admin-passcode');
     });
+  }
+
+  // 2. Passcode Verification (2007) with iPhone FaceID Verified Tick
+  function handlePasscodeVerification() {
+    const code = adminPasscodeInput ? adminPasscodeInput.value.trim() : '';
+    if (code === '2007') {
+      if (adminPasscodeError) adminPasscodeError.style.display = 'none';
+      if (adminPasscodeInput) adminPasscodeInput.blur();
+      
+      // Trigger FaceID-Style Verified Tick Animation
+      if (passcodeForm) passcodeForm.style.display = 'none';
+      if (passcodeVerified) passcodeVerified.style.display = 'block';
+
+      // After satisfaction delay, enter admin portal
+      setTimeout(() => {
+        openPortal('admin');
+      }, 750);
+    } else {
+      if (adminPasscodeError) {
+        adminPasscodeError.style.display = 'block';
+        adminPasscodeError.innerText = "❌ Invalid Passcode. Access Denied.";
+      }
+      if (adminPasscodeInput) {
+        adminPasscodeInput.classList.remove('shake-input');
+        void adminPasscodeInput.offsetWidth; // Trigger reflow for animation restart
+        adminPasscodeInput.classList.add('shake-input');
+        adminPasscodeInput.style.borderColor = "#EF4444";
+        adminPasscodeInput.focus();
+      }
+    }
+  }
+
+  if (adminPasscodeVerifyBtn) {
+    adminPasscodeVerifyBtn.addEventListener('click', handlePasscodeVerification);
   }
 
   if (adminPasscodeInput) {
     adminPasscodeInput.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
-        if (gatewayOpenAdminBtn) gatewayOpenAdminBtn.click();
+        handlePasscodeVerification();
       }
     });
   }
@@ -466,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (tabUser) tabUser.addEventListener('click', () => openPortal('user'));
-  if (tabAdmin) tabAdmin.addEventListener('click', () => openPortal('admin'));
+  if (tabAdmin) tabAdmin.addEventListener('click', () => openPortal('admin-passcode'));
   if (navSignOutBtn) navSignOutBtn.addEventListener('click', () => openPortal('gateway'));
   if (navHomeBtn) navHomeBtn.addEventListener('click', () => openPortal('gateway'));
   exitPortalBtns.forEach(btn => btn.addEventListener('click', () => openPortal('gateway')));
@@ -475,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const initialPortal = urlParams.get('portal');
   if (initialPortal === 'admin') {
-    openPortal('admin');
+    openPortal('admin-passcode');
   } else if (initialPortal === 'user' || urlParams.get('auth')) {
     openPortal('user');
   } else {
