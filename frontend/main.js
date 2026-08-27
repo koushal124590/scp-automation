@@ -376,57 +376,77 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Dual Portal Switching System (User vs Admin)
-  const tabUser = document.getElementById('tab-user-portal');
-  const tabAdmin = document.getElementById('tab-admin-portal');
-  const heroBtnUser = document.getElementById('hero-btn-user');
-  const heroBtnAdmin = document.getElementById('hero-btn-admin');
+  // 2. Gateway & Dual Portal Router
+  const gatewayView = document.getElementById('gateway-view');
   const userPortalView = document.getElementById('user-portal-view');
   const adminPortalView = document.getElementById('admin-portal-view');
-  const heroTitle = document.getElementById('hero-title');
-  const heroSubtitle = document.getElementById('hero-subtitle');
+  const navPortalLinks = document.getElementById('nav-portal-links');
+  const navSignOutBtn = document.getElementById('nav-sign-out-btn');
+  const navHomeBtn = document.getElementById('nav-home-btn');
 
-  function switchPortal(portal) {
+  const tabUser = document.getElementById('tab-user-portal');
+  const tabAdmin = document.getElementById('tab-admin-portal');
+
+  function openPortal(portal) {
     if (portal === 'admin') {
-      if (tabAdmin) tabAdmin.classList.add('active');
-      if (tabUser) tabUser.classList.remove('active');
-      if (heroBtnAdmin) { heroBtnAdmin.classList.add('btn-primary'); heroBtnAdmin.classList.remove('btn-secondary'); }
-      if (heroBtnUser) { heroBtnUser.classList.add('btn-secondary'); heroBtnUser.classList.remove('btn-primary'); }
-      
+      if (gatewayView) gatewayView.style.display = 'none';
       if (userPortalView) userPortalView.style.display = 'none';
       if (adminPortalView) adminPortalView.style.display = 'block';
-
-      if (heroTitle) heroTitle.innerText = "Facility Automation & Control";
-      if (heroSubtitle) heroSubtitle.innerText = "Master infrastructure controls, API security vault, and telemetry observability.";
-    } else {
-      if (tabUser) tabUser.classList.add('active');
-      if (tabAdmin) tabAdmin.classList.remove('active');
-      if (heroBtnUser) { heroBtnUser.classList.add('btn-primary'); heroBtnUser.classList.remove('btn-secondary'); }
-      if (heroBtnAdmin) { heroBtnAdmin.classList.add('btn-secondary'); heroBtnAdmin.classList.remove('btn-primary'); }
-
+      if (navPortalLinks) navPortalLinks.style.display = 'flex';
+      if (navSignOutBtn) navSignOutBtn.style.display = 'inline-flex';
+      if (tabAdmin) tabAdmin.classList.add('active');
+      if (tabUser) tabUser.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (portal === 'user') {
+      if (gatewayView) gatewayView.style.display = 'none';
       if (adminPortalView) adminPortalView.style.display = 'none';
       if (userPortalView) userPortalView.style.display = 'block';
-
-      if (heroTitle) heroTitle.innerText = "Automate Your Gmail in 1-Click";
-      if (heroSubtitle) heroSubtitle.innerText = "Autonomous 24/7 Gmail Auto-Responder with custom Business Card embedding and spinning 3D branding.";
+      if (navPortalLinks) navPortalLinks.style.display = 'flex';
+      if (navSignOutBtn) navSignOutBtn.style.display = 'inline-flex';
+      if (tabUser) tabUser.classList.add('active');
+      if (tabAdmin) tabAdmin.classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Gateway login screen
+      if (gatewayView) gatewayView.style.display = 'block';
+      if (userPortalView) userPortalView.style.display = 'none';
+      if (adminPortalView) adminPortalView.style.display = 'none';
+      if (navPortalLinks) navPortalLinks.style.display = 'none';
+      if (navSignOutBtn) navSignOutBtn.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
-  if (tabUser) tabUser.addEventListener('click', () => switchPortal('user'));
-  if (tabAdmin) tabAdmin.addEventListener('click', () => switchPortal('admin'));
-  if (heroBtnUser) heroBtnUser.addEventListener('click', () => switchPortal('user'));
-  if (heroBtnAdmin) heroBtnAdmin.addEventListener('click', () => switchPortal('admin'));
+  // Gateway Triggers
+  const gatewayOpenUserBtn = document.getElementById('gateway-open-user-btn');
+  const gatewayOpenAdminBtn = document.getElementById('gateway-open-admin-btn');
+  const gatewayAdminDocsBtn = document.getElementById('gateway-admin-docs-btn');
+  const exitPortalBtns = document.querySelectorAll('.exit-portal-btn');
+
+  if (gatewayOpenUserBtn) gatewayOpenUserBtn.addEventListener('click', () => openPortal('user'));
+  if (gatewayOpenAdminBtn) gatewayOpenAdminBtn.addEventListener('click', () => openPortal('admin'));
+  if (tabUser) tabUser.addEventListener('click', () => openPortal('user'));
+  if (tabAdmin) tabAdmin.addEventListener('click', () => openPortal('admin'));
+  if (navSignOutBtn) navSignOutBtn.addEventListener('click', () => openPortal('gateway'));
+  if (navHomeBtn) navHomeBtn.addEventListener('click', () => openPortal('gateway'));
+  exitPortalBtns.forEach(btn => btn.addEventListener('click', () => openPortal('gateway')));
 
   // Check URL params for initial portal state or OAuth callbacks
   const urlParams = new URLSearchParams(window.location.search);
   const initialPortal = urlParams.get('portal');
   if (initialPortal === 'admin') {
-    switchPortal('admin');
+    openPortal('admin');
+  } else if (initialPortal === 'user' || urlParams.get('auth')) {
+    openPortal('user');
   } else {
-    switchPortal('user');
+    openPortal('gateway'); // Default to Gateway login screen
   }
 
-  // 1-Click OAuth Connect Link resolution
+  // 1-Click OAuth Connect Links
+  const gatewayGoogleBtn = document.getElementById('gateway-google-btn');
+  if (gatewayGoogleBtn) {
+    gatewayGoogleBtn.href = `${API_BASE}/api/auth/google?portal=user`;
+  }
   const userGoogleConnectBtn = document.getElementById('user-google-connect-btn');
   if (userGoogleConnectBtn) {
     userGoogleConnectBtn.href = `${API_BASE}/api/auth/google?portal=user`;

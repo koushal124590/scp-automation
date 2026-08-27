@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SCP Automation - Gmail & Business Card Suite</title>
+    <title>SCP Automation - Secure Portal Gateway</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body class="theme-dark">
@@ -13,50 +13,101 @@
     <!-- Split Pill Navigation -->
     <div class="navbar-wrapper">
       <nav class="nav-pill nav-pill-left">
-        <div class="navbar-brand">SCP</div>
-        <div class="navbar-links">
-          <!-- Role Switcher Tabs -->
+        <div class="navbar-brand" id="nav-home-btn" style="cursor: pointer;">SCP</div>
+        <div class="navbar-links" id="nav-portal-links" style="display: none;">
           <button type="button" class="portal-tab-btn active" id="tab-user-portal">👤 User Portal</button>
           <button type="button" class="portal-tab-btn" id="tab-admin-portal">🛡️ Admin Portal</button>
         </div>
       </nav>
       <nav class="nav-pill nav-pill-right">
         <button type="button" class="btn btn-secondary" id="nav-theme-toggle">🌓 Theme</button>
-        <a href="#portal-content" class="btn btn-primary" id="nav-action-btn">Open Studio</a>
+        <button type="button" class="btn btn-secondary" id="nav-sign-out-btn" style="display: none;">🚪 Exit Portal</button>
       </nav>
     </div>
 
     <main id="app">
-      <!-- Hero Section -->
-      <section class="container text-center" style="padding-top: 170px; padding-bottom: 50px;">
-        <div id="3d-hero-keychain" style="height: 190px; margin-bottom: 30px;"></div>
+      <!-- ═══════════════════════════════════════════ -->
+      <!-- 🚀 GATEWAY / LOGIN AUTHENTICATION SCREEN   -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="container text-center portal-view active" id="gateway-view" style="padding-top: 150px; padding-bottom: 60px;">
+        <div id="3d-hero-keychain" style="height: 180px; margin-bottom: 24px;"></div>
         
-        <h1 class="t-display" id="hero-title" style="margin-bottom: 20px;">Automate Your Gmail in 1-Click</h1>
-        <p class="t-body" id="hero-subtitle" style="max-width: 680px; margin: 0 auto 30px;">
-          Autonomous 24/7 Gmail Auto-Responder with custom Business Card embedding and spinning 3D branding.
+        <p class="squircle-label" style="margin-bottom: 12px; letter-spacing: 0.15em;">SECURE AUTOMATION FACILITY</p>
+        <h1 class="t-display" style="margin-bottom: 16px; font-size: clamp(34px, 5.5vw, 56px);">
+          Authenticate Your Portal
+        </h1>
+        <p class="t-body" style="max-width: 620px; margin: 0 auto 40px; font-size: 16px;">
+          Select your access level to manage your 24/7 Gmail Auto-Responder, upload custom business cards, and monitor system telemetry.
         </p>
 
-        <!-- Role Toggle Selector in Hero -->
-        <div style="display: inline-flex; background: var(--bg-card); padding: 6px; border-radius: var(--r-pill); border: 1px solid var(--border); box-shadow: var(--card-shadow); margin-bottom: 20px; gap: 8px;">
-          <button type="button" class="btn btn-primary hero-portal-btn" id="hero-btn-user" style="padding: 0 24px; height: 42px; font-size: 14px;">
-            👤 User Portal
-          </button>
-          <button type="button" class="btn btn-secondary hero-portal-btn" id="hero-btn-admin" style="padding: 0 24px; height: 42px; font-size: 14px;">
-            🛡️ Admin Portal
-          </button>
+        <!-- Gateway Authentication Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; text-align: left;">
+          
+          <!-- Gateway Card 1: User / Client Login -->
+          <div class="squircle-card" style="padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card-crosshair top-left"></div>
+            <div class="card-crosshair top-right"></div>
+            <div>
+              <div style="display: inline-block; padding: 4px 10px; border-radius: 20px; background: rgba(59, 130, 246, 0.1); color: #3B82F6; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 12px;">
+                CLIENT ACCESS
+              </div>
+              <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">👤 User Portal</h2>
+              <p class="t-body" style="margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
+                1-Click Gmail connection. Customize auto-reply messages, upload your custom business card, and test live email deliveries.
+              </p>
+            </div>
+
+            <div>
+              <a id="gateway-google-btn" href="https://scp-automation-1.onrender.com/api/auth/google?portal=user" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; height: 46px; font-size: 14px; margin-bottom: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                Sign in with Google (1-Click)
+              </a>
+              <button type="button" class="btn btn-secondary" id="gateway-open-user-btn" style="width: 100%; height: 42px; font-size: 13px;">
+                Open User Dashboard →
+              </button>
+            </div>
+          </div>
+
+          <!-- Gateway Card 2: Admin Portal Login -->
+          <div class="squircle-card" style="padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card-crosshair top-left"></div>
+            <div class="card-crosshair top-right"></div>
+            <div>
+              <div style="display: inline-block; padding: 4px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); color: #10B981; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 12px;">
+                FACILITY DIRECTORS
+              </div>
+              <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">🛡️ Admin Portal</h2>
+              <p class="t-body" style="margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
+                Full facility controls. Manage Google API keys vault, configure background polling loops, and inspect runtime telemetry.
+              </p>
+            </div>
+
+            <div>
+              <button type="button" class="btn btn-primary" id="gateway-open-admin-btn" style="width: 100%; height: 46px; font-size: 14px; margin-bottom: 10px;">
+                Enter Admin Console →
+              </button>
+              <button type="button" class="btn btn-secondary" id="gateway-admin-docs-btn" style="width: 100%; height: 42px; font-size: 13px;">
+                📖 Credentials Guide
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
 
       <!-- ═══════════════════════════════════════════ -->
-      <!-- 👤 USER / CLIENT PORTAL SECTION            -->
+      <!-- 👤 USER / CLIENT PORTAL DASHBOARD          -->
       <!-- ═══════════════════════════════════════════ -->
-      <section class="container portal-view active" id="user-portal-view" style="padding-top: 20px;">
+      <section class="container portal-view" id="user-portal-view" style="display: none; padding-top: 140px; padding-bottom: 60px;">
         <div class="dark-section">
-          <div style="margin-bottom: 36px;">
-            <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; opacity: 0.7;">CLIENT SUITE</p>
-            <h2 class="t-display" style="font-size: clamp(30px, 4.5vw, 48px); letter-spacing: -0.04em;">
-              1-Click Gmail Automation & Card Studio
-            </h2>
+          <div style="margin-bottom: 36px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; opacity: 0.7;">CLIENT SUITE</p>
+              <h2 class="t-display" style="font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.04em;">
+                User Automation Studio
+              </h2>
+            </div>
+            <button type="button" class="btn btn-secondary exit-portal-btn">← Back to Gateway</button>
           </div>
 
           <div class="grid">
@@ -175,15 +226,18 @@
       </section>
 
       <!-- ═══════════════════════════════════════════ -->
-      <!-- 🛡️ ADMIN FACILITY PORTAL SECTION           -->
+      <!-- 🛡️ ADMIN FACILITY PORTAL DASHBOARD         -->
       <!-- ═══════════════════════════════════════════ -->
-      <section class="container portal-view" id="admin-portal-view" style="display: none; padding-top: 20px;">
+      <section class="container portal-view" id="admin-portal-view" style="display: none; padding-top: 140px; padding-bottom: 60px;">
         <div class="dark-section">
-          <div style="margin-bottom: 36px;">
-            <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; opacity: 0.7;">ADMINISTRATOR CONSOLE</p>
-            <h2 class="t-display" style="font-size: clamp(30px, 4.5vw, 48px); letter-spacing: -0.04em;">
-              Facility Controls & API Vault
-            </h2>
+          <div style="margin-bottom: 36px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; opacity: 0.7;">ADMINISTRATOR CONSOLE</p>
+              <h2 class="t-display" style="font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.04em;">
+                Facility Controls & API Vault
+              </h2>
+            </div>
+            <button type="button" class="btn btn-secondary exit-portal-btn">← Back to Gateway</button>
           </div>
           
           <div class="grid">
