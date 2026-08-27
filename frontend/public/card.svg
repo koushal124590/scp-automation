@@ -1,0 +1,106 @@
+<svg width="300" height="282" viewBox="0 0 300 282" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EBECEE" />
+      <stop offset="25%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#A9ACB3" />
+      <stop offset="75%" stop-color="#D1D4DA" />
+      <stop offset="100%" stop-color="#7B8089" />
+    </linearGradient>
+  </defs>
+  <!-- Outer & Inner Background -->
+  <rect width="300" height="282" rx="14" fill="#363739"/>
+  <rect x="2" y="2" width="296" height="278" rx="12" fill="black"/>
+  
+  <!-- Header Text -->
+  <text x="14" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="900" fill="#FDFCF9" letter-spacing="1">SCP FOUNDATION</text>
+  <text x="14" y="50" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#A8A3A2" letter-spacing="1">AIML ENGINEER</text>
+  <text x="270" y="50" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#FDFCF9">CE</text>
+  
+  <!-- Separator Line -->
+  <line x1="14" y1="60" x2="286" y2="60" stroke="#716F6D" stroke-width="1.5"/>
+  
+  <!-- Left Side: Contact Info (replacing ruler) -->
+  <g font-family="monospace" font-size="10" fill="#FDFCF9">
+    <text x="14" y="80">TEL: +91 9542265255</text>
+    <text x="14" y="98">EML: koushalcharan22</text>
+    <text x="14" y="110">     @gmail.com</text>
+    <text x="14" y="128">LOC: Knowledge Park-3</text>
+  </g>
+  
+  <!-- Hazard Box -->
+  <rect x="14" y="145" width="50" height="30" fill="#E5E4E6"/>
+  <!-- Triangle -->
+  <polygon points="39,150 49,170 29,170" fill="none" stroke="black" stroke-width="1.5"/>
+  <!-- Exclamation -->
+  <text x="39" y="166" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="black" text-anchor="middle">!</text>
+  
+  <!-- Small Red SCP Logo Box -->
+  <rect x="70" y="145" width="30" height="30" fill="#D32F2F"/>
+  <g transform="translate(85, 160) scale(0.35)" stroke="black" stroke-width="4" fill="none" stroke-linejoin="round">
+    <path d="M -8.034 -24.726 L -5.568 -31.52 L 5.568 -31.52 L 8.034 -24.726 A 26 26 0 0 1 25.428 5.408 L 30.08 10.944 L 24.512 20.576 L 17.394 19.318 A 26 26 0 0 1 -17.394 19.318 L -24.512 20.576 L -30.08 10.944 L -25.428 5.408 A 26 26 0 0 1 -8.034 -24.726 Z"/>
+    <circle cx="0" cy="0" r="16" stroke-width="4.5"/>
+    <g fill="black" stroke="none">
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" />
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(120)" />
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(240)" />
+    </g>
+  </g>
+  
+  <!-- Right Side: Logo Box -->
+  <rect x="140" y="80" width="140" height="100" rx="16" fill="#414144"/>
+  <rect x="143" y="83" width="134" height="94" rx="14" fill="black"/>
+  
+  <!-- SCP Logo -->
+  <g transform="translate(210, 130) scale(1.35)" stroke="url(#silverGradient)" stroke-width="3" fill="none" stroke-linejoin="round">
+    <!-- Outer Shield -->
+    <path d="M -8.034 -24.726 L -5.568 -31.52 L 5.568 -31.52 L 8.034 -24.726 A 26 26 0 0 1 25.428 5.408 L 30.08 10.944 L 24.512 20.576 L 17.394 19.318 A 26 26 0 0 1 -17.394 19.318 L -24.512 20.576 L -30.08 10.944 L -25.428 5.408 A 26 26 0 0 1 -8.034 -24.726 Z"/>
+    
+    <!-- Inner solid circle -->
+    <circle cx="0" cy="0" r="16" stroke-width="3.5"/>
+    
+    <!-- Solid Inward Arrows -->
+    <g fill="url(#silverGradient)" stroke="none">
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" />
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(120)" />
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(240)" />
+    </g>
+  </g>
+
+  <!-- Bottom Barcode -->
+  <g transform="translate(14, 215)" fill="#FDFCF9">
+    <rect x="0" y="0" width="4" height="45"/>
+    <rect x="6" y="0" width="2" height="45"/>
+    <rect x="10" y="0" width="6" height="45"/>
+    <rect x="18" y="0" width="2" height="45"/>
+    <rect x="22" y="0" width="8" height="45"/>
+    <rect x="34" y="0" width="4" height="45"/>
+    <rect x="40" y="0" width="2" height="45"/>
+    <rect x="46" y="0" width="8" height="45"/>
+    <rect x="58" y="0" width="3" height="45"/>
+    <rect x="65" y="0" width="6" height="45"/>
+    <rect x="75" y="0" width="2" height="45"/>
+    <rect x="81" y="0" width="8" height="45"/>
+    <rect x="93" y="0" width="4" height="45"/>
+    <rect x="99" y="0" width="2" height="45"/>
+    <rect x="105" y="0" width="7" height="45"/>
+    <rect x="116" y="0" width="3" height="45"/>
+    <rect x="123" y="0" width="5" height="45"/>
+    <rect x="132" y="0" width="8" height="45"/>
+    <rect x="144" y="0" width="4" height="45"/>
+    <rect x="150" y="0" width="2" height="45"/>
+    <rect x="156" y="0" width="6" height="45"/>
+    <rect x="166" y="0" width="10" height="45"/>
+    <rect x="180" y="0" width="3" height="45"/>
+    <rect x="187" y="0" width="6" height="45"/>
+    <rect x="197" y="0" width="2" height="45"/>
+    <rect x="203" y="0" width="8" height="45"/>
+    <rect x="215" y="0" width="4" height="45"/>
+    <rect x="221" y="0" width="2" height="45"/>
+    <rect x="227" y="0" width="7" height="45"/>
+    <rect x="238" y="0" width="4" height="45"/>
+    <rect x="246" y="0" width="6" height="45"/>
+    <rect x="256" y="0" width="8" height="45"/>
+    <rect x="268" y="0" width="4" height="45"/>
+  </g>
+</svg>

@@ -184,21 +184,54 @@ function getActiveCardAttachment(config) {
     return null;
 }
 
-// Core Email Sender Function
-async function sendAutomationEmail({ toEmail, subject, customText, inReplyTo, messageId }) {
+// Smart Google Gmail Auth Resolver
+async function getAuthenticatedClient() {
     const tokenPath = path.join(__dirname, 'token.json');
     const credPath = path.join(__dirname, 'credentials.json');
 
-    let token, credentials;
+    let token = null;
+    let credentials = null;
+
     try {
         token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
+    } catch (e) {}
+
+    try {
         credentials = JSON.parse(await fs.readFile(credPath, 'utf8'));
-    } catch (e) {
-        throw new Error("Missing credentials.json or token.json. Please upload them in the dashboard.");
+    } catch (e) {}
+
+    if (!token && !credentials) {
+        throw new Error("Missing authentication credentials. Please upload your token.json or credentials.json in the dashboard.");
     }
 
-    const auth = google.auth.fromJSON(credentials);
-    auth.setCredentials(token);
+    // 1. Authorized User Token (token.json alone has client_id, client_secret, refresh_token)
+    if (token && (token.type === 'authorized_user' || (token.refresh_token && token.client_id))) {
+        return google.auth.fromJSON(token);
+    }
+
+    // 2. Separate Credentials + Token
+    if (credentials && token) {
+        const auth = google.auth.fromJSON(credentials);
+        auth.setCredentials(token);
+        return auth;
+    }
+
+    // 3. Only Credentials uploaded (needs token)
+    if (credentials && !token) {
+        throw new Error("OAuth Client Credentials uploaded, but token.json is required to authorize your Gmail account. Please upload token.json.");
+    }
+
+    // 4. Token fallback
+    if (token) {
+        return google.auth.fromJSON(token);
+    }
+
+    throw new Error("Please upload token.json to grant Gmail API access.");
+}
+
+// Core Email Sender Function
+async function sendAutomationEmail({ toEmail, subject, customText, inReplyTo, messageId }) {
+    const auth = await getAuthenticatedClient();
     const gmail = google.gmail({ version: 'v1', auth });
     const config = await readConfig();
 
@@ -311,21 +344,15 @@ setInterval(async () => {
             return;
         }
 
-        const tokenPath = path.join(__dirname, 'token.json');
-        const credPath = path.join(__dirname, 'credentials.json');
-        
-        let token, credentials;
+        let auth;
         try {
-            token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
-            credentials = JSON.parse(await fs.readFile(credPath, 'utf8'));
-        } catch (e) {
+            auth = await getAuthenticatedClient();
+        } catch (authErr) {
             engineStatus.isRunning = false;
-            engineStatus.error = "Missing credentials.json or token.json.";
+            engineStatus.error = authErr.message;
             return;
         }
 
-        const auth = google.auth.fromJSON(credentials);
-        auth.setCredentials(token);
         const gmail = google.gmail({ version: 'v1', auth });
 
         const res = await gmail.users.messages.list({
