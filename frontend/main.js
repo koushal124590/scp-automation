@@ -377,6 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ═══════════════════════════════════════════
   // BACKEND INTEGRATION & THEME SWITCHER
   // ═══════════════════════════════════════════
+  const API_BASE = window.location.hostname.includes('localhost') 
+    ? '' 
+    : 'https://scp-automation-1.onrender.com';
   
   // 1. Theme Switcher (Navbar)
   const navThemeToggle = document.getElementById('nav-theme-toggle');
@@ -400,12 +403,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const lastCheckText = document.getElementById('engine-last-check');
 
   // Load existing config
-  fetch('/api/config')
+  fetch(`${API_BASE}/api/config`)
     .then(res => res.json())
     .then(data => {
         if(botToggle) botToggle.checked = !!data.active;
         if(botText) botText.value = data.customText || '';
-    }).catch(e => console.log("Backend not running locally", e));
+    }).catch(e => console.log("Backend offline or booting...", e));
 
   if(saveBtn) {
     saveBtn.addEventListener('click', () => {
@@ -414,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
           customText: botText.value
        };
        saveBtn.innerText = "Deploying...";
-       fetch('/api/config', {
+       fetch(`${API_BASE}/api/config`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -432,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Poll Engine Status
   setInterval(() => {
-      fetch('/api/status')
+      fetch(`${API_BASE}/api/status`)
       .then(res => res.json())
       .then(data => {
           if (statusText) {
@@ -470,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
           uploadStatus.style.color = "var(--text-100)";
           uploadStatus.style.display = 'block';
           
-          fetch('/api/upload-credentials', {
+          fetch(`${API_BASE}/api/upload-credentials`, {
               method: 'POST',
               body: formData
           })
