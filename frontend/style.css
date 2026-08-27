@@ -328,7 +328,7 @@ body:not(.theme-dark) .btn-secondary {
 .bottom-right { bottom: 16px; right: 16px; }
 
 /* ════════════════════════════════
-   INLINE 3D ICONS
+   INLINE 3D ICONS & PORTAL TABS
    ════════════════════════════════ */
 .inline-icon {
   display: inline-block;
@@ -339,3 +339,37 @@ body:not(.theme-dark) .btn-secondary {
   border-radius: 12px;
   margin: 0 8px;
 }
+
+.portal-tab-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-80);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.portal-tab-btn:hover {
+  color: var(--text-100);
+}
+
+.portal-tab-btn.active {
+  background: var(--text-100);
+  color: var(--bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.portal-view {
+  animation: fadeInPortal 0.3s ease;
+}
+
+@keyframes fadeInPortal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

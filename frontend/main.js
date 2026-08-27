@@ -357,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ═══════════════════════════════════════════
-  // BACKEND INTEGRATION & THEME SWITCHER
+  // ═══════════════════════════════════════════
+  // BACKEND INTEGRATION, PORTALS & THEME SWITCHER
   // ═══════════════════════════════════════════
   const API_BASE = window.location.hostname.includes('localhost') 
     ? '' 
@@ -375,7 +376,84 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Master Control & Email Automation Suite
+  // 2. Dual Portal Switching System (User vs Admin)
+  const tabUser = document.getElementById('tab-user-portal');
+  const tabAdmin = document.getElementById('tab-admin-portal');
+  const heroBtnUser = document.getElementById('hero-btn-user');
+  const heroBtnAdmin = document.getElementById('hero-btn-admin');
+  const userPortalView = document.getElementById('user-portal-view');
+  const adminPortalView = document.getElementById('admin-portal-view');
+  const heroTitle = document.getElementById('hero-title');
+  const heroSubtitle = document.getElementById('hero-subtitle');
+
+  function switchPortal(portal) {
+    if (portal === 'admin') {
+      if (tabAdmin) tabAdmin.classList.add('active');
+      if (tabUser) tabUser.classList.remove('active');
+      if (heroBtnAdmin) { heroBtnAdmin.classList.add('btn-primary'); heroBtnAdmin.classList.remove('btn-secondary'); }
+      if (heroBtnUser) { heroBtnUser.classList.add('btn-secondary'); heroBtnUser.classList.remove('btn-primary'); }
+      
+      if (userPortalView) userPortalView.style.display = 'none';
+      if (adminPortalView) adminPortalView.style.display = 'block';
+
+      if (heroTitle) heroTitle.innerText = "Facility Automation & Control";
+      if (heroSubtitle) heroSubtitle.innerText = "Master infrastructure controls, API security vault, and telemetry observability.";
+    } else {
+      if (tabUser) tabUser.classList.add('active');
+      if (tabAdmin) tabAdmin.classList.remove('active');
+      if (heroBtnUser) { heroBtnUser.classList.add('btn-primary'); heroBtnUser.classList.remove('btn-secondary'); }
+      if (heroBtnAdmin) { heroBtnAdmin.classList.add('btn-secondary'); heroBtnAdmin.classList.remove('btn-primary'); }
+
+      if (adminPortalView) adminPortalView.style.display = 'none';
+      if (userPortalView) userPortalView.style.display = 'block';
+
+      if (heroTitle) heroTitle.innerText = "Automate Your Gmail in 1-Click";
+      if (heroSubtitle) heroSubtitle.innerText = "Autonomous 24/7 Gmail Auto-Responder with custom Business Card embedding and spinning 3D branding.";
+    }
+  }
+
+  if (tabUser) tabUser.addEventListener('click', () => switchPortal('user'));
+  if (tabAdmin) tabAdmin.addEventListener('click', () => switchPortal('admin'));
+  if (heroBtnUser) heroBtnUser.addEventListener('click', () => switchPortal('user'));
+  if (heroBtnAdmin) heroBtnAdmin.addEventListener('click', () => switchPortal('admin'));
+
+  // Check URL params for initial portal state or OAuth callbacks
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialPortal = urlParams.get('portal');
+  if (initialPortal === 'admin') {
+    switchPortal('admin');
+  } else {
+    switchPortal('user');
+  }
+
+  // 1-Click OAuth Connect Link resolution
+  const userGoogleConnectBtn = document.getElementById('user-google-connect-btn');
+  if (userGoogleConnectBtn) {
+    userGoogleConnectBtn.href = `${API_BASE}/api/auth/google?portal=user`;
+  }
+
+  // 3. User Portal: State & Form Elements
+  const userConnectedEmail = document.getElementById('user-connected-email');
+  const userAuthBadge = document.getElementById('user-auth-badge');
+  const userSubjectLine = document.getElementById('user-subject-line');
+  const userCustomText = document.getElementById('user-custom-text');
+  const userSaveBtn = document.getElementById('user-save-config-btn');
+  const userSaveStatus = document.getElementById('user-save-status');
+
+  const userActiveCardImg = document.getElementById('user-active-card-img');
+  const userPreviewCard = document.getElementById('user-preview-card');
+  const userPreviewText = document.getElementById('user-preview-text');
+
+  const userCardForm = document.getElementById('user-card-upload-form');
+  const userCardFile = document.getElementById('user-card-file');
+  const userCardBtn = document.getElementById('user-card-upload-btn');
+  const userCardStatus = document.getElementById('user-card-status');
+
+  const userSendTestBtn = document.getElementById('user-send-test-btn');
+  const userTestEmailInput = document.getElementById('user-test-email');
+  const userTestStatus = document.getElementById('user-test-status');
+
+  // 4. Admin Portal: State & Form Elements
   const botToggle = document.getElementById('bot-active-toggle');
   const botPrimaryEmail = document.getElementById('bot-primary-email');
   const botSubjectLine = document.getElementById('bot-subject-line');
@@ -384,48 +462,77 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById('save-config-btn');
   const saveStatus = document.getElementById('save-status');
 
-  const previewEmailText = document.getElementById('preview-email-text');
-  const previewEmailCard = document.getElementById('preview-email-card');
   const activeCardImg = document.getElementById('active-card-img');
   const activeCardFilename = document.getElementById('active-card-filename');
-
   const statusText = document.getElementById('engine-status-text');
   const processedCountText = document.getElementById('engine-processed-count');
   const activeCardStatusText = document.getElementById('engine-active-card');
   const lastCheckText = document.getElementById('engine-last-check');
 
-  // Live update email preview text as user types
-  if (botText && previewEmailText) {
-    botText.addEventListener('input', () => {
-      previewEmailText.innerText = botText.value || 'How can I help you today? Please leave your message and wait for a reply within 5 minutes.';
+  // Live typing preview sync
+  if (userCustomText && userPreviewText) {
+    userCustomText.addEventListener('input', () => {
+      userPreviewText.innerText = userCustomText.value || 'How can I help you today? Please leave your message and wait for a reply within 5 minutes.';
     });
   }
 
-  // Load existing config
+  // Load configuration from backend
   fetch(`${API_BASE}/api/config`)
     .then(res => res.json())
     .then(data => {
+        const primary = data.primaryEmail || 'koushalcharn22@gmail.com';
+        if (userConnectedEmail) userConnectedEmail.innerText = primary;
+        if (userTestEmailInput) userTestEmailInput.value = primary;
+        if (botPrimaryEmail) botPrimaryEmail.value = primary;
+
+        const subject = data.subjectLine || 'Re: Quick Response & Follow-up';
+        if (userSubjectLine) userSubjectLine.value = subject;
+        if (botSubjectLine) botSubjectLine.value = subject;
+
+        const text = data.customText || 'How can I help you today? Please leave your message and wait for a reply within 5 minutes.';
+        if (userCustomText) userCustomText.value = text;
+        if (userPreviewText) userPreviewText.innerText = text;
+        if (botText) botText.value = text;
+
         if (botToggle) botToggle.checked = !!data.active;
-        if (botPrimaryEmail) botPrimaryEmail.value = data.primaryEmail || 'koushalcharn22@gmail.com';
-        if (botSubjectLine) botSubjectLine.value = data.subjectLine || 'Re: Quick Response & Follow-up';
-        if (botText) {
-            botText.value = data.customText || '';
-            if (previewEmailText && data.customText) {
-                previewEmailText.innerText = data.customText;
-            }
-        }
         if (botFilterMode) botFilterMode.value = data.filterMode || 'personal';
 
         if (data.cardFile) {
             const cardUrl = `${API_BASE}/public/${data.cardFile}?t=${Date.now()}`;
+            if (userActiveCardImg) userActiveCardImg.src = cardUrl;
+            if (userPreviewCard) userPreviewCard.src = cardUrl;
             if (activeCardImg) activeCardImg.src = cardUrl;
-            if (previewEmailCard) previewEmailCard.src = cardUrl;
             if (activeCardFilename) activeCardFilename.innerText = `Active: ${data.cardFile}`;
             if (activeCardStatusText) activeCardStatusText.innerText = data.cardFile;
         }
     }).catch(e => console.log("Backend offline or initializing...", e));
 
-  // Save Configuration
+  // User Portal: Save Configuration
+  if (userSaveBtn) {
+    userSaveBtn.addEventListener('click', () => {
+       const payload = {
+          subjectLine: userSubjectLine ? userSubjectLine.value : 'Re: Quick Response',
+          customText: userCustomText ? userCustomText.value : ''
+       };
+       userSaveBtn.innerText = "Saving...";
+       fetch(`${API_BASE}/api/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+       }).then(res => res.json())
+         .then(data => {
+            userSaveBtn.innerText = "Save Message Settings";
+            if (userSaveStatus) {
+                userSaveStatus.style.display = 'block';
+                setTimeout(() => { userSaveStatus.style.display = 'none'; }, 3000);
+            }
+         }).catch(e => {
+            userSaveBtn.innerText = "Error (See Console)";
+         });
+    });
+  }
+
+  // Admin Portal: Save Configuration
   if (saveBtn) {
     saveBtn.addEventListener('click', () => {
        const payload = {
@@ -442,44 +549,31 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify(payload)
        }).then(res => res.json())
          .then(data => {
-            saveBtn.innerText = "Save Configuration";
+            saveBtn.innerText = "Save Global Config";
             if (saveStatus) {
                 saveStatus.style.display = 'block';
                 setTimeout(() => { saveStatus.style.display = 'none'; }, 3000);
             }
          }).catch(e => {
             saveBtn.innerText = "Error (See Console)";
-            console.error(e);
          });
     });
   }
 
-  // 3. Business Card Uploader
-  const cardUploadForm = document.getElementById('card-upload-form');
-  const cardUploadStatus = document.getElementById('card-upload-status');
-  const uploadCardBtn = document.getElementById('upload-card-btn');
-
-  if (cardUploadForm) {
-    cardUploadForm.addEventListener('submit', (e) => {
+  // User Portal: Business Card Uploader
+  if (userCardForm) {
+    userCardForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const fileInput = document.getElementById('business-card-file');
-      if (!fileInput.files || fileInput.files.length === 0) {
-        if (cardUploadStatus) {
-          cardUploadStatus.innerText = "Please select a PNG, SVG, or JPG card first.";
-          cardUploadStatus.style.color = "#EF4444";
-          cardUploadStatus.style.display = 'block';
-        }
-        return;
-      }
+      if (!userCardFile.files || userCardFile.files.length === 0) return;
 
       const formData = new FormData();
-      formData.append('businessCard', fileInput.files[0]);
+      formData.append('businessCard', userCardFile.files[0]);
 
-      if (uploadCardBtn) uploadCardBtn.innerText = "Uploading Card...";
-      if (cardUploadStatus) {
-        cardUploadStatus.innerText = "Uploading & Processing...";
-        cardUploadStatus.style.color = "var(--text-80)";
-        cardUploadStatus.style.display = 'block';
+      if (userCardBtn) userCardBtn.innerText = "Uploading Card...";
+      if (userCardStatus) {
+        userCardStatus.innerText = "Uploading & Processing...";
+        userCardStatus.style.color = "var(--text-80)";
+        userCardStatus.style.display = 'block';
       }
 
       fetch(`${API_BASE}/api/upload-card`, {
@@ -488,57 +582,71 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(res => res.json())
       .then(data => {
-        if (uploadCardBtn) uploadCardBtn.innerText = "Upload New Card";
+        if (userCardBtn) userCardBtn.innerText = "Upload My Card";
         if (data.success) {
-          if (cardUploadStatus) {
-            cardUploadStatus.innerText = "✅ Business Card updated successfully!";
-            cardUploadStatus.style.color = "#10B981";
+          if (userCardStatus) {
+            userCardStatus.innerText = "✅ Business Card updated successfully!";
+            userCardStatus.style.color = "#10B981";
           }
           const updatedCardUrl = `${API_BASE}/public/${data.cardFile}?t=${Date.now()}`;
+          if (userActiveCardImg) userActiveCardImg.src = updatedCardUrl;
+          if (userPreviewCard) userPreviewCard.src = updatedCardUrl;
           if (activeCardImg) activeCardImg.src = updatedCardUrl;
-          if (previewEmailCard) previewEmailCard.src = updatedCardUrl;
-          if (activeCardFilename) activeCardFilename.innerText = `Active: ${data.cardFile}`;
-          if (activeCardStatusText) activeCardStatusText.innerText = data.cardFile;
-        } else {
-          if (cardUploadStatus) {
-            cardUploadStatus.innerText = "Error: " + (data.error || "Failed to upload");
-            cardUploadStatus.style.color = "#EF4444";
-          }
         }
       })
       .catch(err => {
-        if (uploadCardBtn) uploadCardBtn.innerText = "Upload New Card";
-        if (cardUploadStatus) {
-          cardUploadStatus.innerText = "Network Error uploading card.";
-          cardUploadStatus.style.color = "#EF4444";
+        if (userCardBtn) userCardBtn.innerText = "Upload My Card";
+        if (userCardStatus) {
+          userCardStatus.innerText = "Network error uploading card.";
+          userCardStatus.style.color = "#EF4444";
         }
       });
     });
   }
 
-  // 4. Instant Live Test Email Dispatcher
-  const sendTestBtn = document.getElementById('send-test-email-btn');
-  const testRecipientInput = document.getElementById('test-recipient-email');
-  const testEmailStatus = document.getElementById('test-email-status');
+  // Admin Portal: Business Card Uploader
+  const cardUploadForm = document.getElementById('card-upload-form');
+  const cardUploadStatus = document.getElementById('card-upload-status');
+  const uploadCardBtn = document.getElementById('upload-card-btn');
+  if (cardUploadForm) {
+    cardUploadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('business-card-file');
+      if (!fileInput.files || fileInput.files.length === 0) return;
 
-  if (sendTestBtn) {
-    sendTestBtn.addEventListener('click', () => {
-      const recipient = testRecipientInput ? testRecipientInput.value.trim() : 'koushalcharn22@gmail.com';
-      if (!recipient) {
-        if (testEmailStatus) {
-          testEmailStatus.innerText = "Please enter a valid email address.";
-          testEmailStatus.style.color = "#EF4444";
-          testEmailStatus.style.display = 'block';
+      const formData = new FormData();
+      formData.append('businessCard', fileInput.files[0]);
+
+      if (uploadCardBtn) uploadCardBtn.innerText = "Uploading...";
+      fetch(`${API_BASE}/api/upload-card`, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        if (uploadCardBtn) uploadCardBtn.innerText = "Upload Card";
+        if (data.success) {
+          if (cardUploadStatus) {
+            cardUploadStatus.innerText = "✅ Saved!";
+            cardUploadStatus.style.color = "#10B981";
+            cardUploadStatus.style.display = 'block';
+          }
+          const updatedCardUrl = `${API_BASE}/public/${data.cardFile}?t=${Date.now()}`;
+          if (activeCardImg) activeCardImg.src = updatedCardUrl;
+          if (userActiveCardImg) userActiveCardImg.src = updatedCardUrl;
+          if (userPreviewCard) userPreviewCard.src = updatedCardUrl;
         }
-        return;
-      }
+      });
+    });
+  }
 
-      sendTestBtn.innerText = "🚀 Dispatching...";
-      sendTestBtn.disabled = true;
-      if (testEmailStatus) {
-        testEmailStatus.innerText = `Connecting to Gmail API & dispatching to ${recipient}...`;
-        testEmailStatus.style.color = "var(--text-80)";
-        testEmailStatus.style.display = 'block';
+  // User Portal: Live Test Email Sender
+  if (userSendTestBtn) {
+    userSendTestBtn.addEventListener('click', () => {
+      const recipient = userTestEmailInput ? userTestEmailInput.value.trim() : 'koushalcharn22@gmail.com';
+      userSendTestBtn.innerText = "🚀 Sending...";
+      userSendTestBtn.disabled = true;
+      if (userTestStatus) {
+        userTestStatus.innerText = `Dispatching test email to ${recipient}...`;
+        userTestStatus.style.color = "var(--text-80)";
+        userTestStatus.style.display = 'block';
       }
 
       fetch(`${API_BASE}/api/send-test`, {
@@ -548,32 +656,32 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then(res => res.json())
       .then(data => {
-        sendTestBtn.innerText = "🚀 Send Test Email Now";
-        sendTestBtn.disabled = false;
+        userSendTestBtn.innerText = "🚀 Send Test Email";
+        userSendTestBtn.disabled = false;
         if (data.success) {
-          if (testEmailStatus) {
-            testEmailStatus.innerText = `✅ ${data.message}`;
-            testEmailStatus.style.color = "#10B981";
+          if (userTestStatus) {
+            userTestStatus.innerText = `✅ ${data.message}`;
+            userTestStatus.style.color = "#10B981";
           }
         } else {
-          if (testEmailStatus) {
-            testEmailStatus.innerText = `❌ Error: ${data.error || "Failed to send email"}`;
-            testEmailStatus.style.color = "#EF4444";
+          if (userTestStatus) {
+            userTestStatus.innerText = `❌ Error: ${data.error || "Failed"}`;
+            userTestStatus.style.color = "#EF4444";
           }
         }
       })
       .catch(err => {
-        sendTestBtn.innerText = "🚀 Send Test Email Now";
-        sendTestBtn.disabled = false;
-        if (testEmailStatus) {
-          testEmailStatus.innerText = "❌ Network Error communicating with server.";
-          testEmailStatus.style.color = "#EF4444";
+        userSendTestBtn.innerText = "🚀 Send Test Email";
+        userSendTestBtn.disabled = false;
+        if (userTestStatus) {
+          userTestStatus.innerText = "❌ Network error sending test email.";
+          userTestStatus.style.color = "#EF4444";
         }
       });
     });
   }
 
-  // 5. Credentials Upload Form
+  // Admin Portal: Credentials Upload Form
   const uploadForm = document.getElementById('credentials-upload-form');
   const uploadStatus = document.getElementById('upload-status');
   if (uploadForm) {
@@ -581,15 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           const formData = new FormData(uploadForm);
           const files = document.getElementById('credentials-file').files;
-          
-          if (files.length === 0) {
-              if (uploadStatus) {
-                uploadStatus.innerText = "Please select credentials.json and/or token.json first.";
-                uploadStatus.style.color = "#EF4444";
-                uploadStatus.style.display = 'block';
-              }
-              return;
-          }
+          if (files.length === 0) return;
           
           if (uploadStatus) {
             uploadStatus.innerText = "Uploading Credentials Vault...";
@@ -605,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(data => {
               if (data.success) {
                   if (uploadStatus) {
-                    uploadStatus.innerText = "✅ Success! Credentials securely stored.";
+                    uploadStatus.innerText = "✅ " + data.message;
                     uploadStatus.style.color = "#10B981";
                   }
               } else {
@@ -614,17 +714,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     uploadStatus.style.color = "#EF4444";
                   }
               }
-          })
-          .catch(err => {
-              if (uploadStatus) {
-                uploadStatus.innerText = "Error uploading credentials files.";
-                uploadStatus.style.color = "#EF4444";
-              }
           });
       });
   }
 
-  // 6. Polling Engine Health Telemetry
+  // Telemetry Polling Loop
   setInterval(() => {
       fetch(`${API_BASE}/api/status`)
       .then(res => res.json())
@@ -634,10 +728,20 @@ document.addEventListener('DOMContentLoaded', () => {
                   statusText.innerText = "Online";
                   statusText.style.color = "#10B981";
                   statusText.style.background = "rgba(16, 185, 129, 0.1)";
+                  if (userAuthBadge) {
+                    userAuthBadge.innerText = "Connected";
+                    userAuthBadge.style.color = "#10B981";
+                    userAuthBadge.style.background = "rgba(16, 185, 129, 0.1)";
+                  }
               } else {
                   statusText.innerText = "Offline: " + (data.error || "Paused");
                   statusText.style.color = "#EF4444";
                   statusText.style.background = "rgba(239, 68, 68, 0.1)";
+                  if (userAuthBadge) {
+                    userAuthBadge.innerText = "Disconnected";
+                    userAuthBadge.style.color = "#EF4444";
+                    userAuthBadge.style.background = "rgba(239, 68, 68, 0.1)";
+                  }
               }
           }
           if (processedCountText && data.messagesProcessed !== undefined) {
@@ -652,14 +756,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }).catch(() => {});
   }, 4000);
 
-  // 7. Instructions Modal
+  // Instructions Modal
   const instrBtn = document.getElementById('show-instructions-btn');
   const instrModal = document.getElementById('instructions-modal');
   const closeBtn = document.getElementById('close-modal-btn');
-  
   if (instrBtn && instrModal && closeBtn) {
       instrBtn.addEventListener('click', () => instrModal.style.display = 'flex');
       closeBtn.addEventListener('click', () => instrModal.style.display = 'none');
   }
 });
+
 

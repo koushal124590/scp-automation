@@ -86,6 +86,112 @@ app.post('/api/config', async (req, res) => {
     }
 });
 
+// ── 1-Click Google OAuth Web Login Flow ──
+app.get('/api/auth/google', async (req, res) => {
+    try {
+        const credPath = path.join(__dirname, 'credentials.json');
+        const tokenPath = path.join(__dirname, 'token.json');
+
+        let clientId, clientSecret;
+        if (fsSync.existsSync(credPath)) {
+            const creds = JSON.parse(await fs.readFile(credPath, 'utf8'));
+            const key = creds.installed || creds.web;
+            clientId = key ? key.client_id : null;
+            clientSecret = key ? key.client_secret : null;
+        } else if (fsSync.existsSync(tokenPath)) {
+            const token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
+            clientId = token.client_id;
+            clientSecret = token.client_secret;
+        }
+
+        if (!clientId || !clientSecret) {
+            return res.status(400).send("OAuth Client ID & Secret not configured yet. Please upload credentials.json in Admin Portal first.");
+        }
+
+        const host = req.get('host');
+        const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+        const redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+
+        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+        const authUrl = oauth2Client.generateAuthUrl({
+            access_type: 'offline',
+            scope: ['https://www.googleapis.com/auth/gmail.modify', 'https://www.googleapis.com/auth/userinfo.email'],
+            prompt: 'consent',
+            state: req.query.portal || 'user'
+        });
+
+        res.redirect(authUrl);
+    } catch (err) {
+        res.status(500).send("Authentication error: " + err.message);
+    }
+});
+
+app.get('/api/auth/google/callback', async (req, res) => {
+    const state = req.query.state || 'user';
+    const isLocal = req.get('host').includes('localhost');
+    const origin = isLocal ? 'http://localhost:5173' : 'https://scp-automation-96bd6.web.app';
+
+    try {
+        const code = req.query.code;
+        if (!code) {
+            return res.redirect(`${origin}/?portal=${state}&auth=error`);
+        }
+
+        const credPath = path.join(__dirname, 'credentials.json');
+        const tokenPath = path.join(__dirname, 'token.json');
+
+        let clientId, clientSecret;
+        if (fsSync.existsSync(credPath)) {
+            const creds = JSON.parse(await fs.readFile(credPath, 'utf8'));
+            const key = creds.installed || creds.web;
+            clientId = key ? key.client_id : null;
+            clientSecret = key ? key.client_secret : null;
+        } else if (fsSync.existsSync(tokenPath)) {
+            const token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
+            clientId = token.client_id;
+            clientSecret = token.client_secret;
+        }
+
+        const host = req.get('host');
+        const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+        const redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+
+        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+        const { tokens } = await oauth2Client.getToken(code);
+        oauth2Client.setCredentials(tokens);
+
+        let userEmail = 'koushalcharn22@gmail.com';
+        try {
+            const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+            const userInfo = await oauth2.userinfo.get();
+            if (userInfo.data && userInfo.data.email) {
+                userEmail = userInfo.data.email;
+            }
+        } catch(e) {}
+
+        const tokenPayload = {
+            type: 'authorized_user',
+            client_id: clientId,
+            client_secret: clientSecret,
+            refresh_token: tokens.refresh_token || tokens.access_token,
+            user_email: userEmail
+        };
+
+        await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(tokenPayload, null, 2));
+        console.log(`✅ User authenticated via 1-Click OAuth: ${userEmail}`);
+
+        const config = await readConfig();
+        config.primaryEmail = userEmail;
+        config.active = true;
+        await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
+
+        res.redirect(`${origin}/?portal=${state}&auth=success&email=${encodeURIComponent(userEmail)}`);
+    } catch (err) {
+        console.error('OAuth Callback Error:', err);
+        res.redirect(`${origin}/?portal=${state}&auth=error&msg=${encodeURIComponent(err.message)}`);
+    }
+});
+
 // ── API: Credentials Upload ──
 app.post('/api/upload-credentials', uploadCredentials.array('credentials', 5), async (req, res) => {
     try {
