@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SCP Automation</title>
+    <title>SCP Automation - Gmail & Business Card Suite</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body class="theme-dark">
@@ -15,146 +15,200 @@
       <nav class="nav-pill nav-pill-left">
         <div class="navbar-brand">SCP</div>
         <div class="navbar-links">
-          <a href="#" class="navbar-link active">Product</a>
-          <a href="#" class="navbar-link">Blocks</a>
-          <a href="#" class="navbar-link">Templates</a>
-          <a href="#" class="navbar-link">Pricing</a>
-          <a href="#" class="navbar-link">Blog</a>
+          <a href="#app" class="navbar-link active">Dashboard</a>
+          <a href="#email-suite" class="navbar-link">Email Studio</a>
+          <a href="#card-studio" class="navbar-link">Business Card</a>
+          <a href="#auth-section" class="navbar-link">API Keys</a>
         </div>
       </nav>
       <nav class="nav-pill nav-pill-right">
         <button type="button" class="btn btn-secondary" id="nav-theme-toggle">🌓 Theme</button>
-        <a href="#" class="btn btn-secondary">Login</a>
-        <a href="#" class="btn btn-primary">Sign Up</a>
+        <a href="#email-suite" class="btn btn-primary">Open Studio</a>
       </nav>
     </div>
 
     <main id="app">
       <!-- Hero Section -->
-      <section class="container text-center" style="padding-top: 200px; padding-bottom: 80px;">
+      <section class="container text-center" style="padding-top: 180px; padding-bottom: 60px;">
         <!-- The placeholder for the 3D Keychain object -->
         <div id="3d-hero-keychain" style="height: 200px; margin-bottom: 40px;"></div>
         
         <h1 class="t-display" style="margin-bottom: 24px;">Engineered for Automation</h1>
-        <p class="t-body">SCP, the first facility manager you can build on.</p>
-        <button class="btn btn-primary hero-btn" style="margin-top: 40px; height: 48px; padding: 0 32px; font-size: 16px;">Get Started</button>
+        <p class="t-body" style="max-width: 680px; margin: 0 auto 32px;">
+          Autonomous 24/7 Gmail Auto-Responder with custom Business Card embedding and spinning 3D branding.
+        </p>
+        <a href="#email-suite" class="btn btn-primary hero-btn" style="height: 48px; padding: 0 32px; font-size: 16px;">Configure Automation</a>
       </section>
 
-      <!-- Inline Icons Section -->
-      <section class="container text-center" style="padding: 60px 24px;">
-        <h2 class="t-display" style="max-width: 1000px; margin: 0 auto; line-height: 1.25; font-size: clamp(32px, 5vw, 60px);">
-          SCP is the first facility manager where directors can build and remix custom security protocols right on timeline.
-        </h2>
-      </section>
-
-      <!-- The Bento Grid Section -->
-      <section class="container">
+      <!-- The Automation Bento Grid Suite -->
+      <section class="container" id="email-suite" style="padding-top: 40px;">
         <div class="dark-section">
-          <div style="margin-bottom: 48px;">
-            <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; opacity: 0.7;">There's a block for that</p>
-            <h2 class="t-display" style="font-size: clamp(32px, 5vw, 56px); letter-spacing: -0.04em;">
-              Browse curated blocks for anomaly containment, kinetic tracking, 3D mapping, and beyond.
+          <div style="margin-bottom: 40px;">
+            <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; opacity: 0.7;">CONTROL PANEL</p>
+            <h2 class="t-display" style="font-size: clamp(32px, 5vw, 52px); letter-spacing: -0.04em;">
+              Gmail Automation & Business Card Studio
             </h2>
           </div>
           
           <div class="grid">
-            <!-- Card 1: Master Control Panel -->
+            <!-- Card 1: Master Control & Message Config -->
             <div class="squircle-card card-span-2">
               <div class="card-crosshair top-left"></div>
               <div class="card-crosshair top-right"></div>
               <div style="width: 100%;">
-                <p class="squircle-label" style="margin-bottom: 8px;">Master Control</p>
-                <h3 style="margin-bottom: 20px;">Gmail Auto-Responder</h3>
+                <p class="squircle-label" style="margin-bottom: 8px;">ENGINE CONTROLS</p>
+                <h3 style="margin-bottom: 16px;">Gmail Auto-Responder</h3>
                 
-                <label style="display: flex; align-items: center; gap: 12px; font-weight: 600; cursor: pointer; margin-bottom: 16px;">
+                <label style="display: flex; align-items: center; gap: 12px; font-weight: 600; cursor: pointer; margin-bottom: 18px;">
                   <input type="checkbox" id="bot-active-toggle" style="width: 20px; height: 20px;" />
-                  Enable Auto-Responder Bot
+                  <span>Enable 24/7 Background Auto-Responder</span>
                 </label>
-                
-                <textarea id="bot-custom-text" class="form-textarea" placeholder="Enter auto-reply text..." style="height: 90px; margin-bottom: 16px;"></textarea>
+
+                <div style="margin-bottom: 14px;">
+                  <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Primary Account Email</label>
+                  <input type="email" id="bot-primary-email" class="form-input" placeholder="e.g. koushalcharn22@gmail.com" value="koushalcharn22@gmail.com" />
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                  <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Subject Line</label>
+                  <input type="text" id="bot-subject-line" class="form-input" placeholder="e.g. Re: Quick Response & Follow-up" />
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                  <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Auto-Reply Message Body</label>
+                  <textarea id="bot-custom-text" class="form-textarea" placeholder="Enter reply message..." style="height: 85px;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                  <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Inbox Filtering Mode</label>
+                  <select id="bot-filter-mode" class="form-input" style="cursor: pointer;">
+                    <option value="personal">Personal Inquiries Only (Gmail, Yahoo, Outlook, iCloud)</option>
+                    <option value="all">Reply to All Inbound Emails</option>
+                  </select>
+                </div>
                 
                 <button id="save-config-btn" class="btn btn-primary" style="width: 100%;">Save Configuration</button>
                 <p id="save-status" style="margin-top: 8px; font-size: 13px; color: #10B981; display: none;">Configuration saved successfully.</p>
-                
-                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 13px; font-weight: 600;">Engine Status:</span>
-                    <span id="engine-status-text" style="font-size: 13px; font-family: monospace; color: #EF4444; font-weight: 700;">Offline</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Business Card Upload & Studio -->
+            <div class="squircle-card card-span-2" id="card-studio">
+              <div class="card-crosshair top-left"></div>
+              <div class="card-crosshair top-right"></div>
+              <div style="width: 100%;">
+                <p class="squircle-label" style="margin-bottom: 8px;">BRANDING ASSETS</p>
+                <h3 style="margin-bottom: 12px;">Business Card Uploader</h3>
+                <p class="t-body" style="margin-bottom: 16px; font-size: 14px;">
+                  Upload your custom Business Card image (<strong>PNG</strong>, <strong>SVG</strong>, or <strong>JPG</strong>). It is automatically attached to every auto-reply.
+                </p>
+
+                <!-- Current Active Card Preview Thumbnail -->
+                <div style="margin-bottom: 16px; padding: 16px; border-radius: 16px; background: var(--input-bg); border: 1px solid var(--border); text-align: center;">
+                  <p style="font-size: 12px; font-weight: 600; margin-bottom: 10px; color: var(--text-80);">Active Business Card</p>
+                  <div style="max-height: 160px; overflow: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                    <img id="active-card-img" src="/public/card.svg" alt="Active Business Card" style="max-width: 100%; max-height: 140px; object-fit: contain; border-radius: 8px;" />
                   </div>
-                  <p id="engine-last-check" style="font-size: 12px; color: var(--text-64); margin-top: 4px;">Last checked: Never</p>
+                  <p id="active-card-filename" style="font-size: 11px; font-family: monospace; color: var(--text-64); margin-top: 8px;">Active: card.svg</p>
+                </div>
+                
+                <form id="card-upload-form">
+                  <div style="margin-bottom: 12px;">
+                    <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Choose Business Card (PNG / SVG / JPG)</label>
+                    <input type="file" id="business-card-file" class="form-input" name="businessCard" accept=".png,.svg,.jpg,.jpeg" required />
+                  </div>
+                  <button type="submit" id="upload-card-btn" class="btn btn-secondary" style="width: 100%;">Upload New Card</button>
+                </form>
+                <p id="card-upload-status" style="margin-top: 8px; font-size: 13px; display: none;"></p>
+              </div>
+            </div>
+
+            <!-- Card 3: Live Outbound Email Preview & Instant Test Email (Span 4 Full Width) -->
+            <div class="squircle-card card-span-4">
+              <div class="card-crosshair top-left"></div>
+              <div class="card-crosshair top-right"></div>
+              <div style="width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                  <div>
+                    <p class="squircle-label">LIVE PREVIEW & INSTANT TEST</p>
+                    <h3 style="margin-top: 4px;">Outbound Email Template & Live Dispatcher</h3>
+                  </div>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="email" id="test-recipient-email" class="form-input" placeholder="Recipient email" value="koushalcharn22@gmail.com" style="width: 260px;" />
+                    <button type="button" id="send-test-email-btn" class="btn btn-primary">🚀 Send Test Email Now</button>
+                  </div>
+                </div>
+
+                <p id="test-email-status" style="font-size: 14px; font-weight: 600; margin-bottom: 16px; display: none;"></p>
+
+                <!-- Live Email Simulation Container -->
+                <div style="background: #000000; border-radius: 20px; padding: 32px 20px; border: 1px solid var(--border); box-shadow: inset 0 2px 8px rgba(0,0,0,0.6); text-align: center; color: #FFFFFF; max-width: 580px; margin: 0 auto;">
+                  <!-- Email Header / Logo -->
+                  <div style="margin-bottom: 24px;">
+                    <img src="/gif/3d-logo-spinning.gif" alt="3D Spinning SCP Logo" style="max-height: 70px; width: auto;" />
+                  </div>
+
+                  <!-- Email Body / Business Card -->
+                  <div style="margin-bottom: 24px; padding: 0 16px;">
+                    <img id="preview-email-card" src="/public/card.svg" alt="Business Card Attached" style="max-width: 320px; width: 100%; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.6);" />
+                  </div>
+
+                  <!-- Email Message Text -->
+                  <div style="padding: 16px 20px; border-top: 1px solid #222222; font-size: 15px; line-height: 1.6; color: #E5E7EB;">
+                    <p id="preview-email-text" style="font-weight: 600;">
+                      How can I help you today? Please leave your message and wait for a reply within 5 minutes.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Card 2: Credentials Upload -->
+            <!-- Card 4: Google Cloud API Authentication & Status Monitor -->
+            <div class="squircle-card card-span-2" id="auth-section">
+              <div class="card-crosshair top-left"></div>
+              <div class="card-crosshair top-right"></div>
+              <div style="width: 100%;">
+                <p class="squircle-label" style="margin-bottom: 8px;">SECURITY & VAULT</p>
+                <h3 style="margin-bottom: 12px;">Google API Credentials</h3>
+                <p class="t-body" style="margin-bottom: 18px; font-size: 14px;">
+                  Upload your <strong>credentials.json</strong> and <strong>token.json</strong> to authorize Gmail API access.
+                </p>
+                
+                <form id="credentials-upload-form">
+                  <input type="file" id="credentials-file" class="form-input" name="credentials" multiple accept=".json" style="margin-bottom: 14px;" />
+                  <button type="submit" class="btn btn-secondary" style="width: 100%;">Upload Credentials JSON</button>
+                </form>
+                <p id="upload-status" style="margin-top: 8px; font-size: 13px; display: none;"></p>
+
+                <button type="button" id="show-instructions-btn" class="btn btn-secondary" style="margin-top: 14px; width: 100%;">📖 Step-by-Step Instructions</button>
+              </div>
+            </div>
+
+            <!-- Card 5: Live Engine Health & Telemetry -->
             <div class="squircle-card card-span-2">
               <div class="card-crosshair top-left"></div>
               <div class="card-crosshair top-right"></div>
               <div style="width: 100%;">
-                <p class="squircle-label" style="margin-bottom: 8px;">Authentication</p>
-                <h3 style="margin-bottom: 12px;">Google API Credentials</h3>
-                <p class="t-body" style="margin-bottom: 20px; font-size: 14px;">Upload your <strong>credentials.json</strong> and <strong>token.json</strong> to connect Gmail.</p>
+                <p class="squircle-label" style="margin-bottom: 8px;">RUNTIME TELEMETRY</p>
+                <h3 style="margin-bottom: 14px;">Engine Health & Status</h3>
                 
-                <form id="credentials-upload-form">
-                  <input type="file" id="credentials-file" class="form-input" name="credentials" multiple accept=".json" style="margin-bottom: 16px;" />
-                  <button type="submit" class="btn btn-secondary" style="width: 100%;">Upload Credentials</button>
-                </form>
-                <p id="upload-status" style="margin-top: 8px; font-size: 13px; display: none;"></p>
+                <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 14px; font-weight: 600;">Engine Status:</span>
+                    <span id="engine-status-text" style="font-size: 13px; font-family: monospace; color: #EF4444; font-weight: 700; background: rgba(239, 68, 68, 0.1); padding: 4px 10px; border-radius: 20px;">Offline</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: var(--text-80);">
+                    <span>Processed Emails:</span>
+                    <strong id="engine-processed-count" style="color: var(--text-100);">0</strong>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-80);">
+                    <span>Active Card:</span>
+                    <strong id="engine-active-card" style="color: var(--text-100);">card.svg</strong>
+                  </div>
+                </div>
 
-                <button type="button" id="show-instructions-btn" class="btn btn-secondary" style="margin-top: 16px; width: 100%;">📖 How to get these files?</button>
+                <p id="engine-last-check" style="font-size: 12px; color: var(--text-64);">Last heartbeat: Never</p>
               </div>
-            </div>
-
-            <!-- Additional Bento Grid Blocks -->
-            <div class="squircle-card">
-              <p class="squircle-label">L.01</p>
-              <h3>Webhooks</h3>
-              <p class="t-body">Instant event triggers.</p>
-            </div>
-            
-            <div class="squircle-card">
-              <p class="squircle-label">L.02</p>
-              <h3>Cron Engine</h3>
-              <p class="t-body">Periodic task runner.</p>
-            </div>
-            
-            <div class="squircle-card card-span-2-tall">
-              <div class="card-crosshair top-left"></div>
-              <p class="squircle-label">DATA.TRANSFORM</p>
-              <h3>Payload Mutator</h3>
-              <p class="t-body">Automated JSON parsing and strictly typed data coercion with zero runtime overhead.</p>
-            </div>
-            
-            <div class="squircle-card">
-              <p class="squircle-label">N.04</p>
-              <h3>OAuth2.0</h3>
-              <p class="t-body">Secure token vault.</p>
-            </div>
-            
-            <div class="squircle-card">
-              <p class="squircle-label">N.05</p>
-              <h3>Graph Sync</h3>
-              <p class="t-body">Unified data pipelines.</p>
-            </div>
-            
-            <div class="squircle-card card-span-4">
-              <div class="card-crosshair top-left"></div>
-              <div class="card-crosshair top-right"></div>
-              <p class="squircle-label">EXECUTION.ENGINE</p>
-              <h3>Edge Serverless Workers</h3>
-              <p class="t-body">Globally distributed V8 isolates running your automation scripts with 0ms cold starts.</p>
-            </div>
-            
-            <div class="squircle-card card-span-2">
-              <p class="squircle-label">SEC.01</p>
-              <h3>Rate Limiting</h3>
-              <p class="t-body">Intelligent sliding window rate protection.</p>
-            </div>
-            
-            <div class="squircle-card card-span-2">
-              <p class="squircle-label">LOGS</p>
-              <h3>Telemetry & Observability</h3>
-              <p class="t-body">Real-time telemetry into API health and latency metrics.</p>
             </div>
           </div>
         </div>
@@ -162,20 +216,20 @@
     </main>
 
     <!-- Instructions Modal -->
-    <div id="instructions-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 999999; align-items: center; justify-content: center; padding: 24px;">
+    <div id="instructions-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 999999; align-items: center; justify-content: center; padding: 24px;">
       <div style="background: var(--bg-card); max-width: 600px; width: 100%; padding: 40px; border-radius: 28px; border: 1px solid var(--border); box-shadow: var(--card-shadow); max-height: 90vh; overflow-y: auto; color: var(--text-100);">
-        <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 16px; color: var(--text-100);">Obtaining Google Credentials</h2>
-        <p style="margin-bottom: 16px; font-size: 15px; color: var(--text-80);">To allow this automation tool to read and reply to your emails, you must provide OAuth 2.0 credentials.</p>
+        <h2 style="font-size: 26px; font-weight: 700; margin-bottom: 16px; color: var(--text-100);">Obtaining Google Credentials</h2>
+        <p style="margin-bottom: 16px; font-size: 14px; color: var(--text-80); line-height: 1.6;">
+          Follow these 6 simple steps to generate your Gmail OAuth credentials:
+        </p>
         
-        <ol style="margin-left: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.7; color: var(--text-80);">
-          <li>Go to the <a href="https://console.cloud.google.com/" target="_blank" style="color: #3B82F6; text-decoration: underline;">Google Cloud Console</a>.</li>
-          <li>Create a new Project.</li>
-          <li>Enable the <strong>Gmail API</strong> in the APIs & Services library.</li>
-          <li>Navigate to <strong>OAuth consent screen</strong> and configure it (set to External, add your email as a test user).</li>
-          <li>Go to <strong>Credentials</strong> > Create Credentials > OAuth client ID.</li>
-          <li>Select "Desktop app" (or Web application) and create.</li>
-          <li>Click <strong>Download JSON</strong> and rename the file to <code>credentials.json</code>.</li>
-          <li>To generate <code>token.json</code>, run the initial authorization flow on your backend or local node server.</li>
+        <ol style="margin-left: 20px; margin-bottom: 24px; font-size: 13px; line-height: 1.8; color: var(--text-80);">
+          <li>Open the <a href="https://console.cloud.google.com/" target="_blank" style="color: #3B82F6; text-decoration: underline;">Google Cloud Console</a>.</li>
+          <li>Create a new project (e.g. <code>SCP-Automation</code>).</li>
+          <li>Go to <strong>APIs & Services > Library</strong> and search for <strong>Gmail API</strong>, then click <strong>Enable</strong>.</li>
+          <li>Go to <strong>OAuth consent screen</strong>, select <strong>External</strong>, add your email (<code>koushalcharn22@gmail.com</code>) as a Test User.</li>
+          <li>Go to <strong>Credentials > Create Credentials > OAuth client ID</strong>, choose <strong>Desktop App</strong>.</li>
+          <li>Download the file, rename it to <strong><code>credentials.json</code></strong>, and upload it in this dashboard!</li>
         </ol>
         
         <button id="close-modal-btn" class="btn btn-primary" style="width: 100%;">Understood, Close</button>
