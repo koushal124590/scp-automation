@@ -415,6 +415,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const exitPortalBtns = document.querySelectorAll('.exit-portal-btn');
 
   function openPortal(portal) {
+    const userVerificationView = document.getElementById('user-verification-view');
+    if (userVerificationView) userVerificationView.style.display = 'none';
+
     if (portal === 'admin') {
       if (gatewayView) gatewayView.style.display = 'none';
       if (adminPasscodeView) adminPasscodeView.style.display = 'none';
@@ -443,6 +446,15 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => adminPasscodeInput.focus(), 100);
       }
       if (adminPasscodeError) adminPasscodeError.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (portal === 'user-verification') {
+      if (gatewayView) gatewayView.style.display = 'none';
+      if (adminPasscodeView) adminPasscodeView.style.display = 'none';
+      if (adminPortalView) adminPortalView.style.display = 'none';
+      if (userPortalView) userPortalView.style.display = 'none';
+      if (userVerificationView) userVerificationView.style.display = 'block';
+      if (navPortalLinks) navPortalLinks.style.display = 'none';
+      if (navSignOutBtn) navSignOutBtn.style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (portal === 'user') {
       if (gatewayView) gatewayView.style.display = 'none';
@@ -532,6 +544,52 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navHomeBtn) navHomeBtn.addEventListener('click', () => openPortal('gateway'));
   exitPortalBtns.forEach(btn => btn.addEventListener('click', () => openPortal('gateway')));
 
+  let userVerifyTimer = null;
+
+  function triggerUserVerificationFlow(email) {
+    openPortal('user-verification');
+
+    const emailDisplay = document.getElementById('user-verify-email-display');
+    if (emailDisplay) emailDisplay.innerText = email || 'user@gmail.com';
+
+    const progressBar = document.getElementById('user-verify-progress-bar');
+    const countdownEl = document.getElementById('user-verify-countdown');
+    const skipBtn = document.getElementById('user-verify-skip-btn');
+
+    // Reset progress bar animation
+    if (progressBar) {
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+      setTimeout(() => {
+        progressBar.style.transition = 'width 20s linear';
+        progressBar.style.width = '100%';
+      }, 50);
+    }
+
+    let timeLeft = 20;
+    if (countdownEl) countdownEl.innerText = timeLeft;
+
+    if (userVerifyTimer) clearInterval(userVerifyTimer);
+
+    function proceedToUserPortal() {
+      if (userVerifyTimer) clearInterval(userVerifyTimer);
+      openPortal('user');
+      refreshUserPortalState();
+    }
+
+    if (skipBtn) {
+      skipBtn.onclick = proceedToUserPortal;
+    }
+
+    userVerifyTimer = setInterval(() => {
+      timeLeft--;
+      if (countdownEl) countdownEl.innerText = timeLeft;
+      if (timeLeft <= 0) {
+        proceedToUserPortal();
+      }
+    }, 1000);
+  }
+
   // Check URL params for initial portal state or OAuth callbacks
   const urlParams = new URLSearchParams(window.location.search);
   const initialPortal = urlParams.get('portal');
@@ -539,12 +597,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const userEmailParam = urlParams.get('email');
 
   if (authStatus === 'success' && userEmailParam) {
-    localStorage.setItem('scp_user_email', decodeURIComponent(userEmailParam));
-  }
-
-  if (initialPortal === 'admin') {
+    const email = decodeURIComponent(userEmailParam);
+    localStorage.setItem('scp_user_email', email);
+    triggerUserVerificationFlow(email);
+  } else if (initialPortal === 'admin') {
     openPortal('admin-passcode');
-  } else if (initialPortal === 'user' || authStatus) {
+  } else if (initialPortal === 'user') {
     openPortal('user');
   } else {
     openPortal('gateway'); // Default to Gateway login screen
@@ -574,8 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
           } catch(e) {}
         }
-        openPortal('user');
-        refreshUserPortalState();
+        triggerUserVerificationFlow(user.email);
       }
     } catch (err) {
       console.error('Firebase Google Auth Error:', err);

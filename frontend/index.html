@@ -174,6 +174,52 @@
       </section>
 
       <!-- ═══════════════════════════════════════════ -->
+      <!-- 2.5 👤 USER LOGIN VERIFICATION TICK SCREEN  -->
+      <!-- ═══════════════════════════════════════════ -->
+      <section class="container text-center portal-view" id="user-verification-view" style="display: none; padding-top: 140px; padding-bottom: 60px;">
+        <div class="squircle-card" style="max-width: 520px; margin: 0 auto; padding: 48px 36px; text-align: center;">
+          <div class="card-crosshair top-left"></div>
+          <div class="card-crosshair top-right"></div>
+
+          <div class="faceid-wrapper" style="margin-bottom: 24px;">
+            <svg class="faceid-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle class="faceid-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="faceid-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+          </div>
+
+          <div style="display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); color: #10B981; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 14px;">
+            AUTHENTICATION CONFIRMED
+          </div>
+
+          <h2 class="t-display" style="font-size: 26px; font-weight: 700; margin-bottom: 10px; color: var(--text-100);">
+            Account Verified
+          </h2>
+
+          <p id="user-verify-email-display" class="t-body" style="font-size: 15px; color: #60A5FA; font-weight: 600; margin-bottom: 20px; word-break: break-all;">
+            user@gmail.com
+          </p>
+
+          <p class="t-body" style="font-size: 13px; color: var(--text-80); margin-bottom: 24px; line-height: 1.6;">
+            24/7 Intelligent Gmail Engine activated. Your custom auto-responder and business card studio are ready.
+          </p>
+
+          <!-- 20-Second Animated Progress Bar & Countdown -->
+          <div style="background: var(--input-bg); border-radius: 20px; height: 8px; width: 100%; max-width: 320px; margin: 0 auto 16px; overflow: hidden; border: 1px solid var(--border);">
+            <div id="user-verify-progress-bar" style="background: linear-gradient(90deg, #10B981, #3B82F6); height: 100%; width: 0%;"></div>
+          </div>
+
+          <p id="user-verify-timer-text" style="font-size: 12px; font-family: monospace; color: var(--text-64); margin-bottom: 20px;">
+            Entering Workspace in <span id="user-verify-countdown" style="color: #10B981; font-weight: 700;">20</span>s...
+          </p>
+
+          <button type="button" id="user-verify-skip-btn" class="btn btn-primary" style="max-width: 220px; margin: 0 auto; display: block; height: 42px; font-size: 14px;">
+            Enter Workspace Now →
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════ -->
       <!-- 3. 👤 USER / CLIENT PORTAL DASHBOARD        -->
       <!-- ═══════════════════════════════════════════ -->
       <section class="container portal-view" id="user-portal-view" style="display: none; padding-top: 130px; padding-bottom: 60px;">
