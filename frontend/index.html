@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SCP Automation</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="theme-dark">
+    <!-- ThreeJS WebGL Canvas (For 3D Overlays) -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Split Pill Navigation -->
+    <div class="navbar-wrapper">
+      <nav class="nav-pill nav-pill-left">
+        <div class="navbar-brand">SCP</div>
+        <div class="navbar-links">
+          <a href="#" class="navbar-link active">Product</a>
+          <a href="#" class="navbar-link">Blocks</a>
+          <a href="#" class="navbar-link">Templates</a>
+          <a href="#" class="navbar-link">Pricing</a>
+          <a href="#" class="navbar-link">Blog</a>
+        </div>
+      </nav>
+      <nav class="nav-pill nav-pill-right">
+        <button type="button" class="btn btn-secondary" id="nav-theme-toggle">🌓 Theme</button>
+        <a href="#" class="btn btn-secondary">Login</a>
+        <a href="#" class="btn btn-primary">Sign Up</a>
+      </nav>
+    </div>
+
+    <main id="app">
+      <!-- Hero Section -->
+      <section class="container text-center" style="padding-top: 200px; padding-bottom: 80px;">
+        <!-- The placeholder for the 3D Keychain object -->
+        <div id="3d-hero-keychain" style="height: 200px; margin-bottom: 40px;"></div>
+        
+        <h1 class="t-display" style="margin-bottom: 24px;">Engineered for Automation</h1>
+        <p class="t-body">SCP, the first facility manager you can build on.</p>
+        <button class="btn btn-primary hero-btn" style="margin-top: 40px; height: 48px; padding: 0 32px; font-size: 16px;">Get Started</button>
+      </section>
+
+      <!-- Inline Icons Section -->
+      <section class="container text-center" style="padding: 60px 24px;">
+        <h2 class="t-display" style="max-width: 1000px; margin: 0 auto; line-height: 1.25; font-size: clamp(32px, 5vw, 60px);">
+          SCP is the first facility manager where directors can build and remix custom security protocols right on timeline.
+        </h2>
+      </section>
+
+      <!-- The Bento Grid Section -->
+      <section class="container">
+        <div class="dark-section">
+          <div style="margin-bottom: 48px;">
+            <p class="t-body" style="font-family: monospace; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; opacity: 0.7;">There's a block for that</p>
+            <h2 class="t-display" style="font-size: clamp(32px, 5vw, 56px); letter-spacing: -0.04em;">
+              Browse curated blocks for anomaly containment, kinetic tracking, 3D mapping, and beyond.
+            </h2>
+          </div>
+          
+          <div class="grid">
+            <!-- Card 1: Master Control Panel -->
+            <div class="squircle-card card-span-2">
+              <div class="card-crosshair top-left"></div>
+              <div class="card-crosshair top-right"></div>
+              <div style="width: 100%;">
+                <p class="squircle-label" style="margin-bottom: 8px;">Master Control</p>
+                <h3 style="margin-bottom: 20px;">Gmail Auto-Responder</h3>
+                
+                <label style="display: flex; align-items: center; gap: 12px; font-weight: 600; cursor: pointer; margin-bottom: 16px;">
+                  <input type="checkbox" id="bot-active-toggle" style="width: 20px; height: 20px;" />
+                  Enable Auto-Responder Bot
+                </label>
+                
+                <textarea id="bot-custom-text" class="form-textarea" placeholder="Enter auto-reply text..." style="height: 90px; margin-bottom: 16px;"></textarea>
+                
+                <button id="save-config-btn" class="btn btn-primary" style="width: 100%;">Save Configuration</button>
+                <p id="save-status" style="margin-top: 8px; font-size: 13px; color: #10B981; display: none;">Configuration saved successfully.</p>
+                
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 13px; font-weight: 600;">Engine Status:</span>
+                    <span id="engine-status-text" style="font-size: 13px; font-family: monospace; color: #EF4444; font-weight: 700;">Offline</span>
+                  </div>
+                  <p id="engine-last-check" style="font-size: 12px; color: var(--text-64); margin-top: 4px;">Last checked: Never</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Credentials Upload -->
+            <div class="squircle-card card-span-2">
+              <div class="card-crosshair top-left"></div>
+              <div class="card-crosshair top-right"></div>
+              <div style="width: 100%;">
+                <p class="squircle-label" style="margin-bottom: 8px;">Authentication</p>
+                <h3 style="margin-bottom: 12px;">Google API Credentials</h3>
+                <p class="t-body" style="margin-bottom: 20px; font-size: 14px;">Upload your <strong>credentials.json</strong> and <strong>token.json</strong> to connect Gmail.</p>
+                
+                <form id="credentials-upload-form">
+                  <input type="file" id="credentials-file" class="form-input" name="credentials" multiple accept=".json" style="margin-bottom: 16px;" />
+                  <button type="submit" class="btn btn-secondary" style="width: 100%;">Upload Credentials</button>
+                </form>
+                <p id="upload-status" style="margin-top: 8px; font-size: 13px; display: none;"></p>
+
+                <button type="button" id="show-instructions-btn" class="btn btn-secondary" style="margin-top: 16px; width: 100%;">📖 How to get these files?</button>
+              </div>
+            </div>
+
+            <!-- Additional Bento Grid Blocks -->
+            <div class="squircle-card">
+              <p class="squircle-label">L.01</p>
+              <h3>Webhooks</h3>
+              <p class="t-body">Instant event triggers.</p>
+            </div>
+            
+            <div class="squircle-card">
+              <p class="squircle-label">L.02</p>
+              <h3>Cron Engine</h3>
+              <p class="t-body">Periodic task runner.</p>
+            </div>
+            
+            <div class="squircle-card card-span-2-tall">
+              <div class="card-crosshair top-left"></div>
+              <p class="squircle-label">DATA.TRANSFORM</p>
+              <h3>Payload Mutator</h3>
+              <p class="t-body">Automated JSON parsing and strictly typed data coercion with zero runtime overhead.</p>
+            </div>
+            
+            <div class="squircle-card">
+              <p class="squircle-label">N.04</p>
+              <h3>OAuth2.0</h3>
+              <p class="t-body">Secure token vault.</p>
+            </div>
+            
+            <div class="squircle-card">
+              <p class="squircle-label">N.05</p>
+              <h3>Graph Sync</h3>
+              <p class="t-body">Unified data pipelines.</p>
+            </div>
+            
+            <div class="squircle-card card-span-4">
+              <div class="card-crosshair top-left"></div>
+              <div class="card-crosshair top-right"></div>
+              <p class="squircle-label">EXECUTION.ENGINE</p>
+              <h3>Edge Serverless Workers</h3>
+              <p class="t-body">Globally distributed V8 isolates running your automation scripts with 0ms cold starts.</p>
+            </div>
+            
+            <div class="squircle-card card-span-2">
+              <p class="squircle-label">SEC.01</p>
+              <h3>Rate Limiting</h3>
+              <p class="t-body">Intelligent sliding window rate protection.</p>
+            </div>
+            
+            <div class="squircle-card card-span-2">
+              <p class="squircle-label">LOGS</p>
+              <h3>Telemetry & Observability</h3>
+              <p class="t-body">Real-time telemetry into API health and latency metrics.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 999999; align-items: center; justify-content: center; padding: 24px;">
+      <div style="background: var(--bg-card); max-width: 600px; width: 100%; padding: 40px; border-radius: 28px; border: 1px solid var(--border); box-shadow: var(--card-shadow); max-height: 90vh; overflow-y: auto; color: var(--text-100);">
+        <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 16px; color: var(--text-100);">Obtaining Google Credentials</h2>
+        <p style="margin-bottom: 16px; font-size: 15px; color: var(--text-80);">To allow this automation tool to read and reply to your emails, you must provide OAuth 2.0 credentials.</p>
+        
+        <ol style="margin-left: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.7; color: var(--text-80);">
+          <li>Go to the <a href="https://console.cloud.google.com/" target="_blank" style="color: #3B82F6; text-decoration: underline;">Google Cloud Console</a>.</li>
+          <li>Create a new Project.</li>
+          <li>Enable the <strong>Gmail API</strong> in the APIs & Services library.</li>
+          <li>Navigate to <strong>OAuth consent screen</strong> and configure it (set to External, add your email as a test user).</li>
+          <li>Go to <strong>Credentials</strong> > Create Credentials > OAuth client ID.</li>
+          <li>Select "Desktop app" (or Web application) and create.</li>
+          <li>Click <strong>Download JSON</strong> and rename the file to <code>credentials.json</code>.</li>
+          <li>To generate <code>token.json</code>, run the initial authorization flow on your backend or local node server.</li>
+        </ol>
+        
+        <button id="close-modal-btn" class="btn btn-primary" style="width: 100%;">Understood, Close</button>
+      </div>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

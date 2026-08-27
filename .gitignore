@@ -1,0 +1,10 @@
+node_modules/
+frontend/node_modules/
+credentials.json
+token.json
+config.json
+.env
+.DS_Store
+dist/
+frontend/dist/
+*.log
