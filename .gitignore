@@ -5,6 +5,4 @@ token.json
 config.json
 .env
 .DS_Store
-dist/
-frontend/dist/
 *.log

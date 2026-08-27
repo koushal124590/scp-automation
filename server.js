@@ -560,17 +560,37 @@ setInterval(async () => {
 }, 30000); // Polls every 30 seconds
 
 // Public Legal & Compliance Pages (Google Verification Compliant)
+function sendLegalFile(res, filename) {
+    const candidates = [
+        path.join(__dirname, 'frontend/dist', filename),
+        path.join(__dirname, 'public', filename),
+        path.join(__dirname, 'frontend', filename)
+    ];
+    for (const p of candidates) {
+        if (fsSync.existsSync(p)) return res.sendFile(p);
+    }
+    res.status(404).send(`<h3>${filename} not found</h3>`);
+}
+
 app.get(['/privacy', '/privacy.html'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/dist/privacy.html'));
+    sendLegalFile(res, 'privacy.html');
 });
 
 app.get(['/terms', '/terms.html'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/dist/terms.html'));
+    sendLegalFile(res, 'terms.html');
 });
 
 // Catch-all route to serve Dashboard
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend/dist/index.html'));
+    const candidates = [
+        path.join(__dirname, 'frontend/dist/index.html'),
+        path.join(__dirname, 'public/index.html'),
+        path.join(__dirname, 'frontend/index.html')
+    ];
+    for (const p of candidates) {
+        if (fsSync.existsSync(p)) return res.sendFile(p);
+    }
+    res.redirect('https://scp-automation-96bd6.web.app');
 });
 
 const PORT = process.env.PORT || 3000;
