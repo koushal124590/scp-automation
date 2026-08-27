@@ -15,7 +15,41 @@
       <nav class="nav-pill nav-pill-left">
         <div class="navbar-brand-group" id="nav-home-btn" style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
           <div class="brand-logo-container">
-            <img src="/company_logo.gif" alt="SCP Rotating 3D Logo" class="brand-logo-img" />
+            <svg class="brand-logo-spin" viewBox="0 0 200 200" width="28" height="28" fill="none">
+              <defs>
+                <linearGradient id="navSilverBase" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" />
+                  <stop offset="25%" stop-color="#E2E4E9" />
+                  <stop offset="50%" stop-color="#8E939D" />
+                  <stop offset="75%" stop-color="#D5D8E0" />
+                  <stop offset="100%" stop-color="#696D77" />
+                </linearGradient>
+                <linearGradient id="navSilverCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" />
+                  <stop offset="40%" stop-color="#E2E8F0" />
+                  <stop offset="70%" stop-color="#38BDF8" />
+                  <stop offset="100%" stop-color="#0284C7" />
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="92" fill="#0C0D10" stroke="url(#navSilverBase)" stroke-width="4"/>
+              <g stroke="url(#navSilverCyan)" stroke-width="8" stroke-linecap="round" fill="none">
+                <circle cx="100" cy="100" r="70" stroke-dasharray="45 30" stroke-dashoffset="15" />
+              </g>
+              <circle cx="100" cy="100" r="42" fill="none" stroke="url(#navSilverBase)" stroke-width="8" />
+              <circle cx="100" cy="100" r="37" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-opacity="0.9"/>
+              <g fill="url(#navSilverCyan)">
+                <g transform="translate(100, 100)">
+                  <path d="M 0 -48 L -8 -30 L -2 -30 L -2 -12 L 2 -12 L 2 -30 L 8 -30 Z" />
+                </g>
+                <g transform="translate(100, 100) rotate(120)">
+                  <path d="M 0 -48 L -8 -30 L -2 -30 L -2 -12 L 2 -12 L 2 -30 L 8 -30 Z" />
+                </g>
+                <g transform="translate(100, 100) rotate(240)">
+                  <path d="M 0 -48 L -8 -30 L -2 -30 L -2 -12 L 2 -12 L 2 -30 L 8 -30 Z" />
+                </g>
+              </g>
+              <circle cx="100" cy="100" r="5" fill="#FFFFFF" />
+            </svg>
           </div>
           <span class="navbar-brand" style="margin: 0;">SCP</span>
         </div>
