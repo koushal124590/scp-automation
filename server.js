@@ -557,6 +557,8 @@ setInterval(async () => {
         engineStatus.isRunning = false;
         engineStatus.error = error.message;
     }
+}, 30000); // Polls every 30 seconds
+
 // Public Legal & Compliance Pages (Google Verification Compliant)
 app.get(['/privacy', '/privacy.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend/dist/privacy.html'));
