@@ -13,19 +13,19 @@
   <rect x="2" y="2" width="296" height="278" rx="12" fill="black"/>
   
   <!-- Header Text -->
-  <text x="14" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="900" fill="#FDFCF9" letter-spacing="1">SCP AUTOMATION</text>
-  <text x="14" y="50" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#A8A3A2" letter-spacing="1">CLIENT IDENTITY</text>
+  <text x="14" y="32" font-family="Arial, sans-serif" font-size="20" font-weight="900" fill="#FDFCF9" letter-spacing="1">SCP FOUNDATION</text>
+  <text x="14" y="50" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#A8A3A2" letter-spacing="1">AIML ENGINEER</text>
   <text x="270" y="50" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#FDFCF9">CE</text>
   
   <!-- Separator Line -->
   <line x1="14" y1="60" x2="286" y2="60" stroke="#716F6D" stroke-width="1.5"/>
   
-  <!-- Left Side: Contact Info -->
+  <!-- Left Side: Contact Info (replacing ruler) -->
   <g font-family="monospace" font-size="10" fill="#FDFCF9">
-    <text x="14" y="80">TEL: +1 (555) 019-2834</text>
-    <text x="14" y="98">EML: client.user</text>
-    <text x="14" y="110">     @domain.com</text>
-    <text x="14" y="128">LOC: Global Facility</text>
+    <text x="14" y="80">TEL: +91 9542265255</text>
+    <text x="14" y="98">EML: koushalcharan22</text>
+    <text x="14" y="110">     @gmail.com</text>
+    <text x="14" y="128">LOC: Knowledge Park-3</text>
   </g>
   
   <!-- Hazard Box -->
@@ -63,7 +63,7 @@
     <g fill="url(#silverGradient)" stroke="none">
       <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" />
       <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(120)" />
-      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(240)" />
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-10 -6,-10" transform="rotate(240)" />
     </g>
   </g>
 

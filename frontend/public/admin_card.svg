@@ -43,7 +43,7 @@
     <g fill="black" stroke="none">
       <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" />
       <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(120)" />
-      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-18 -2,-10 -6,-10" transform="rotate(240)" />
+      <polygon points="0,-2 6,-10 2,-10 2,-18 -2,-10 -6,-10" transform="rotate(240)" />
     </g>
   </g>
   
