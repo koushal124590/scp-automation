@@ -104,25 +104,30 @@ app.post('/api/upload-credentials', uploadCredentials.array('credentials', 5), a
                 return res.status(400).json({ error: `File "${file.originalname}" is not valid JSON.` });
             }
 
-            // Check if it's a Google OAuth Client Secret (credentials.json)
-            if (jsonContent.installed || jsonContent.web || jsonContent.client_id || file.originalname.toLowerCase().includes('client_secret') || file.originalname === 'credentials.json') {
-                await fs.writeFile(path.join(__dirname, 'credentials.json'), JSON.stringify(jsonContent, null, 2));
-                savedCredentials = true;
-                console.log(`✅ Saved credentials.json from: ${file.originalname}`);
-            }
-            // Check if it's a Token file (token.json)
-            else if (jsonContent.refresh_token || jsonContent.access_token || jsonContent.type === 'authorized_user' || file.originalname === 'token.json') {
+            // 1. Check if it's a Token file (token.json)
+            if (jsonContent.refresh_token || jsonContent.access_token || jsonContent.type === 'authorized_user' || file.originalname.toLowerCase().includes('token')) {
                 await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(jsonContent, null, 2));
                 savedToken = true;
                 console.log(`✅ Saved token.json from: ${file.originalname}`);
+
+                // If token.json also contains client_id and client_secret, write credentials.json too
+                if (jsonContent.client_id && jsonContent.client_secret) {
+                    const credsPayload = {
+                        installed: {
+                            client_id: jsonContent.client_id,
+                            client_secret: jsonContent.client_secret,
+                            redirect_uris: ["http://localhost"]
+                        }
+                    };
+                    await fs.writeFile(path.join(__dirname, 'credentials.json'), JSON.stringify(credsPayload, null, 2));
+                    savedCredentials = true;
+                }
             }
-            // Fallback by filename
-            else if (file.originalname.toLowerCase().includes('cred')) {
+            // 2. Check if it's a Google OAuth Client Secret (credentials.json)
+            else if (jsonContent.installed || jsonContent.web || jsonContent.client_id || file.originalname.toLowerCase().includes('client_secret') || file.originalname.toLowerCase().includes('cred')) {
                 await fs.writeFile(path.join(__dirname, 'credentials.json'), JSON.stringify(jsonContent, null, 2));
                 savedCredentials = true;
-            } else if (file.originalname.toLowerCase().includes('token')) {
-                await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(jsonContent, null, 2));
-                savedToken = true;
+                console.log(`✅ Saved credentials.json from: ${file.originalname}`);
             }
         }
 
