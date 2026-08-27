@@ -2,7 +2,7 @@
   "name": "automation_tool",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "build": "cd frontend && npm install && npm run build",
