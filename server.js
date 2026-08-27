@@ -55,7 +55,7 @@ const DEFAULT_CONFIG = {
     active: true,
     subjectLine: 'Re: Inquiry & Quick Reply',
     customText: 'How can I help you today? Please leave your message and wait for a reply within 5 minutes.',
-    primaryEmail: 'koushalcharn22@gmail.com',
+    primaryEmail: '',
     filterMode: 'personal', // 'personal' or 'all'
     cardFile: 'card.svg'
 };
@@ -433,8 +433,10 @@ async function sendAutomationEmail({ toEmail, subject, customText, inReplyTo, me
 // ── API: Send Live Test Email ──
 app.post('/api/send-test', async (req, res) => {
     try {
-        const config = await readConfig();
-        const targetEmail = req.body.toEmail || config.primaryEmail || 'koushalcharn22@gmail.com';
+        const targetEmail = req.body.toEmail || config.primaryEmail;
+        if (!targetEmail) {
+            return res.status(400).json({ success: false, error: 'Recipient email address is required.' });
+        }
         
         console.log(`🚀 Sending live test email to: ${targetEmail}`);
         await sendAutomationEmail({

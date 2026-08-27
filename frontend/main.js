@@ -518,9 +518,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check URL params for initial portal state or OAuth callbacks
   const urlParams = new URLSearchParams(window.location.search);
   const initialPortal = urlParams.get('portal');
+  const authStatus = urlParams.get('auth');
+  const userEmailParam = urlParams.get('email');
+
+  if (authStatus === 'success' && userEmailParam) {
+    localStorage.setItem('scp_user_email', decodeURIComponent(userEmailParam));
+  }
+
   if (initialPortal === 'admin') {
     openPortal('admin-passcode');
-  } else if (initialPortal === 'user' || urlParams.get('auth')) {
+  } else if (initialPortal === 'user' || authStatus) {
     openPortal('user');
   } else {
     openPortal('gateway'); // Default to Gateway login screen
@@ -545,7 +552,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const userSaveStatus = document.getElementById('user-save-status');
 
   const userActiveCardImg = document.getElementById('user-active-card-img');
+  const userCardEmptyState = document.getElementById('user-card-empty-state');
+  const userCardPreviewContainer = document.getElementById('user-card-preview-container');
   const userPreviewCard = document.getElementById('user-preview-card');
+  const userSimCardPlaceholder = document.getElementById('user-sim-card-placeholder');
   const userPreviewText = document.getElementById('user-preview-text');
 
   const userCardForm = document.getElementById('user-card-upload-form');
@@ -573,6 +583,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const activeCardStatusText = document.getElementById('engine-active-card');
   const lastCheckText = document.getElementById('engine-last-check');
 
+  // Sync Logged-In User Identity
+  function refreshUserPortalState() {
+    const activeUserEmail = localStorage.getItem('scp_user_email');
+    if (activeUserEmail) {
+      if (userConnectedEmail) userConnectedEmail.innerText = activeUserEmail;
+      if (userAuthBadge) {
+        userAuthBadge.innerText = 'Connected';
+        userAuthBadge.style.color = '#10B981';
+        userAuthBadge.style.background = 'rgba(16, 185, 129, 0.1)';
+      }
+      if (userTestEmailInput && !userTestEmailInput.value) {
+        userTestEmailInput.value = activeUserEmail;
+      }
+    } else {
+      if (userConnectedEmail) userConnectedEmail.innerText = 'Not Connected';
+      if (userAuthBadge) {
+        userAuthBadge.innerText = 'Ready to Connect';
+        userAuthBadge.style.color = '#F59E0B';
+        userAuthBadge.style.background = 'rgba(245, 158, 11, 0.1)';
+      }
+    }
+  }
+
+  refreshUserPortalState();
+
   // Live typing preview sync
   if (userCustomText && userPreviewText) {
     userCustomText.addEventListener('input', () => {
@@ -584,11 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch(`${API_BASE}/api/config`)
     .then(res => res.json())
     .then(data => {
-        const primary = data.primaryEmail || 'koushalcharn22@gmail.com';
-        if (userConnectedEmail) userConnectedEmail.innerText = primary;
-        if (userTestEmailInput) userTestEmailInput.value = primary;
-        if (botPrimaryEmail) botPrimaryEmail.value = primary;
-
         const subject = data.subjectLine || 'Re: Quick Response & Follow-up';
         if (userSubjectLine) userSubjectLine.value = subject;
         if (botSubjectLine) botSubjectLine.value = subject;
@@ -600,11 +630,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (botToggle) botToggle.checked = !!data.active;
         if (botFilterMode) botFilterMode.value = data.filterMode || 'personal';
+        if (botPrimaryEmail && data.primaryEmail) botPrimaryEmail.value = data.primaryEmail;
 
         if (data.cardFile) {
             const cardUrl = `${API_BASE}/public/${data.cardFile}?t=${Date.now()}`;
-            if (userActiveCardImg) userActiveCardImg.src = cardUrl;
-            if (userPreviewCard) userPreviewCard.src = cardUrl;
+            if (userActiveCardImg) {
+              userActiveCardImg.src = cardUrl;
+              if (userCardPreviewContainer) userCardPreviewContainer.style.display = 'flex';
+              if (userCardEmptyState) userCardEmptyState.style.display = 'none';
+            }
+            if (userPreviewCard) {
+              userPreviewCard.src = cardUrl;
+              userPreviewCard.style.display = 'block';
+              if (userSimCardPlaceholder) userSimCardPlaceholder.style.display = 'none';
+            }
             if (activeCardImg) activeCardImg.src = cardUrl;
             if (activeCardFilename) activeCardFilename.innerText = `Active: ${data.cardFile}`;
             if (activeCardStatusText) activeCardStatusText.innerText = data.cardFile;
@@ -641,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveBtn.addEventListener('click', () => {
        const payload = {
           active: botToggle ? botToggle.checked : true,
-          primaryEmail: botPrimaryEmail ? botPrimaryEmail.value : 'koushalcharn22@gmail.com',
+          primaryEmail: botPrimaryEmail ? botPrimaryEmail.value : '',
           subjectLine: botSubjectLine ? botSubjectLine.value : 'Re: Quick Response',
           customText: botText ? botText.value : '',
           filterMode: botFilterMode ? botFilterMode.value : 'personal'
@@ -744,7 +783,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // User Portal: Live Test Email Sender
   if (userSendTestBtn) {
     userSendTestBtn.addEventListener('click', () => {
-      const recipient = userTestEmailInput ? userTestEmailInput.value.trim() : 'koushalcharn22@gmail.com';
+      const recipient = userTestEmailInput ? userTestEmailInput.value.trim() : '';
+      if (!recipient) {
+        if (userTestStatus) {
+          userTestStatus.innerText = "⚠️ Please enter a recipient email address.";
+          userTestStatus.style.color = "#F59E0B";
+          userTestStatus.style.display = 'block';
+        }
+        if (userTestEmailInput) userTestEmailInput.focus();
+        return;
+      }
+
       userSendTestBtn.innerText = "🚀 Sending...";
       userSendTestBtn.disabled = true;
       if (userTestStatus) {

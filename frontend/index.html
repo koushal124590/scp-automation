@@ -177,17 +177,17 @@
                 <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 18px;">
                   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                     <span style="font-size: 13px; font-weight: 600;">Connection Status:</span>
-                    <span id="user-auth-badge" style="font-size: 12px; font-weight: 700; font-family: monospace; padding: 4px 10px; border-radius: 20px; color: #10B981; background: rgba(16, 185, 129, 0.1);">Connected</span>
+                    <span id="user-auth-badge" style="font-size: 12px; font-weight: 700; font-family: monospace; padding: 4px 10px; border-radius: 20px; color: #F59E0B; background: rgba(245, 158, 11, 0.1);">Ready to Connect</span>
                   </div>
                   <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-80);">
                     <span>Active Email:</span>
-                    <strong id="user-connected-email" style="color: var(--text-100);">koushalcharn22@gmail.com</strong>
+                    <strong id="user-connected-email" style="color: var(--text-100); font-family: monospace;">Not Connected</strong>
                   </div>
                 </div>
 
                 <a id="user-google-connect-btn" href="https://scp-automation-1.onrender.com/api/auth/google?portal=user" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
                   <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                  Switch / Reconnect Gmail Account
+                  Connect / Switch Gmail Account
                 </a>
               </div>
             </div>
@@ -203,10 +203,14 @@
                   Upload your business card image (<strong>PNG</strong>, <strong>SVG</strong>, or <strong>JPG</strong>). It is automatically attached to every auto-reply.
                 </p>
 
-                <!-- Active Card Thumbnail -->
+                <!-- Active Card Container -->
                 <div style="margin-bottom: 14px; padding: 14px; border-radius: 14px; background: var(--input-bg); border: 1px solid var(--border); text-align: center;">
-                  <div style="max-height: 130px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                    <img id="user-active-card-img" src="/card.svg" alt="Business Card" style="max-width: 100%; max-height: 120px; object-fit: contain; border-radius: 8px;" />
+                  <div id="user-card-empty-state" style="padding: 16px 8px; color: var(--text-80); font-size: 13px;">
+                    <div style="font-size: 26px; margin-bottom: 6px;">💳</div>
+                    <span>No card uploaded yet. Upload your custom business card below.</span>
+                  </div>
+                  <div id="user-card-preview-container" style="max-height: 130px; overflow: hidden; display: none; align-items: center; justify-content: center;">
+                    <img id="user-active-card-img" src="" alt="Business Card" style="max-width: 100%; max-height: 120px; object-fit: contain; border-radius: 8px;" />
                   </div>
                 </div>
                 
@@ -250,7 +254,10 @@
                         <img src="/gif/3d-logo-spinning.gif" alt="3D Spinning Logo" style="max-height: 60px; width: auto;" onerror="this.src='/scp-logo.svg'" />
                       </div>
                       <div style="margin-bottom: 16px; padding: 0 10px;">
-                        <img id="user-preview-card" src="/card.svg" alt="Card Attached" style="max-width: 240px; width: 100%; border-radius: 8px;" />
+                        <div id="user-sim-card-placeholder" style="border: 1px dashed #444; border-radius: 8px; padding: 18px 8px; font-size: 12px; color: #888;">
+                          [Your Business Card Attachment Preview]
+                        </div>
+                        <img id="user-preview-card" src="" alt="Card Attached" style="max-width: 240px; width: 100%; border-radius: 8px; display: none;" />
                       </div>
                       <div style="padding: 12px; border-top: 1px solid #222222; font-size: 14px; line-height: 1.5; color: #E5E7EB;">
                         <p id="user-preview-text" style="font-weight: 600;">How can I help you today? Please leave your message and wait for a reply within 5 minutes.</p>
@@ -266,10 +273,12 @@
                     <p style="font-size: 13px; color: var(--text-80);">Send a live test email directly to verify your template & business card.</p>
                   </div>
                   <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="email" id="user-test-email" class="form-input" placeholder="Recipient email" value="koushalcharn22@gmail.com" style="width: 240px;" />
+                    <input type="email" id="user-test-email" class="form-input" placeholder="Enter recipient email address..." value="" style="width: 260px;" />
                     <button type="button" id="user-send-test-btn" class="btn btn-primary">🚀 Send Test Email</button>
                   </div>
                 </div>
+                <p id="user-test-status" style="margin-top: 10px; font-size: 13px; font-weight: 600; display: none;"></p>
+              </div>
                 <p id="user-test-status" style="margin-top: 10px; font-size: 13px; font-weight: 600; display: none;"></p>
               </div>
             </div>
@@ -312,7 +321,7 @@
 
                 <div style="margin-bottom: 12px;">
                   <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px;">Primary Account Email</label>
-                  <input type="email" id="bot-primary-email" class="form-input" value="koushalcharn22@gmail.com" />
+                  <input type="email" id="bot-primary-email" class="form-input" placeholder="Owner email address" value="" />
                 </div>
 
                 <div style="margin-bottom: 12px;">
