@@ -222,27 +222,39 @@ class WebGLApp {
     const isDark = document.body.classList.contains('theme-dark');
     const heroColor = isDark ? 0xFFFFFF : 0x000000;
 
-    // 1. Hero SCP Logo (Only in the 3d-hero-keychain container)
-    const heroLogo = this.logoMaster.clone();
-    heroLogo.traverse(child => {
-      if (child.isMesh) {
-        child.material = this.createPlasticMaterial(heroColor);
-      }
+    // Clear existing objects
+    this.objects.forEach(obj => this.scene.remove(obj.mesh));
+    this.objects = [];
+
+    // 3D Rotating Logo for Gateway, User Dashboard, and Admin Dashboard
+    const containers = [
+      { id: '3d-hero-keychain', scaleMult: 1.5 },
+      { id: '3d-user-keychain', scaleMult: 1.2 },
+      { id: '3d-admin-keychain', scaleMult: 1.2 }
+    ];
+
+    containers.forEach(item => {
+      const logoMesh = this.logoMaster.clone();
+      logoMesh.traverse(child => {
+        if (child.isMesh) {
+          child.material = this.createPlasticMaterial(heroColor);
+        }
+      });
+      this.scene.add(logoMesh);
+      this.objects.push({ mesh: logoMesh, domId: item.id, scaleMult: item.scaleMult });
     });
-    this.scene.add(heroLogo);
-    this.objects.push({ mesh: heroLogo, domId: '3d-hero-keychain', isHero: true });
     
     this.updatePositions();
   }
 
   updatePositions() {
     const scrollY = window.scrollY;
-    // Intense Camera Parallax
     this.camera.position.y = -(scrollY * 0.1);
     
     this.objects.forEach(obj => {
       const el = document.getElementById(obj.domId);
-      if (!el) {
+      // Check if container exists and is visible in DOM
+      if (!el || el.offsetParent === null) {
          obj.mesh.visible = false;
          return;
       }
@@ -258,16 +270,9 @@ class WebGLApp {
       obj.mesh.position.x = cx;
       obj.mesh.position.y = absoluteY;
       
-      const targetScale = rect.height / 40; 
-      
-      if(obj.isHero) {
-         obj.mesh.scale.setScalar(targetScale * 1.5);
-         obj.mesh.position.z = 150; 
-      } else {
-         // Scale down the card logos so they fit nicely as background accents
-         obj.mesh.scale.setScalar(targetScale * 0.4);
-         obj.mesh.position.z = 50;
-      }
+      const targetScale = (rect.height || 140) / 40; 
+      obj.mesh.scale.setScalar(targetScale * (obj.scaleMult || 1.2));
+      obj.mesh.position.z = 150; 
     });
   }
 
@@ -278,20 +283,14 @@ class WebGLApp {
       this.bgUniforms.uTime.value = time;
     }
 
-    // Scroll-linked Spin Physics
+    // Scroll-linked & continuous dynamic 3D rotation
     const scrollY = window.scrollY;
     const spinTarget = scrollY * 0.005;
 
-    this.objects.forEach((obj, idx) => {
-      // Lerp rotation towards the scroll target for physics smoothness
-      if (obj.isHero) {
-         obj.mesh.rotation.y += (spinTarget - obj.mesh.rotation.y) * 0.1;
-         obj.mesh.rotation.x = Math.sin(time) * 0.1;
-      } else {
-         // Card logos spin freely based on time and scroll
-         obj.mesh.rotation.x = time * obj.randSpeed;
-         obj.mesh.rotation.y = time * 0.3 + spinTarget;
-         obj.mesh.rotation.z = time * 0.2;
+    this.objects.forEach((obj) => {
+      if (obj.mesh.visible) {
+        obj.mesh.rotation.y += 0.012 + (spinTarget * 0.02);
+        obj.mesh.rotation.x = Math.sin(time * 1.5) * 0.12;
       }
     });
 
@@ -415,16 +414,57 @@ document.addEventListener('DOMContentLoaded', () => {
       if (navSignOutBtn) navSignOutBtn.style.display = 'none';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    if (window.webglApp) {
+      setTimeout(() => { window.webglApp.updatePositions(); }, 50);
+    }
   }
 
-  // Gateway Triggers
-  const gatewayOpenUserBtn = document.getElementById('gateway-open-user-btn');
+  // Admin Passcode 2007 Protection & Triggers
+  const adminPasscodeInput = document.getElementById('admin-passcode-input');
+  const adminPasscodeError = document.getElementById('admin-passcode-error');
   const gatewayOpenAdminBtn = document.getElementById('gateway-open-admin-btn');
   const gatewayAdminDocsBtn = document.getElementById('gateway-admin-docs-btn');
   const exitPortalBtns = document.querySelectorAll('.exit-portal-btn');
 
-  if (gatewayOpenUserBtn) gatewayOpenUserBtn.addEventListener('click', () => openPortal('user'));
-  if (gatewayOpenAdminBtn) gatewayOpenAdminBtn.addEventListener('click', () => openPortal('admin'));
+  if (gatewayOpenAdminBtn) {
+    gatewayOpenAdminBtn.addEventListener('click', () => {
+      const code = adminPasscodeInput ? adminPasscodeInput.value.trim() : '';
+      if (code === '2007') {
+        if (adminPasscodeError) adminPasscodeError.style.display = 'none';
+        if (adminPasscodeInput) {
+          adminPasscodeInput.value = '';
+          adminPasscodeInput.style.borderColor = 'var(--input-border)';
+        }
+        openPortal('admin');
+      } else {
+        if (adminPasscodeError) {
+          adminPasscodeError.style.display = 'block';
+          adminPasscodeError.innerText = "❌ Incorrect Passcode. Access Denied.";
+        }
+        if (adminPasscodeInput) {
+          adminPasscodeInput.style.borderColor = "#EF4444";
+          adminPasscodeInput.focus();
+        }
+      }
+    });
+  }
+
+  if (adminPasscodeInput) {
+    adminPasscodeInput.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        if (gatewayOpenAdminBtn) gatewayOpenAdminBtn.click();
+      }
+    });
+  }
+
+  if (gatewayAdminDocsBtn) {
+    gatewayAdminDocsBtn.addEventListener('click', () => {
+      const modal = document.getElementById('instructions-modal');
+      if (modal) modal.style.display = 'flex';
+    });
+  }
+
   if (tabUser) tabUser.addEventListener('click', () => openPortal('user'));
   if (tabAdmin) tabAdmin.addEventListener('click', () => openPortal('admin'));
   if (navSignOutBtn) navSignOutBtn.addEventListener('click', () => openPortal('gateway'));
