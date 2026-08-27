@@ -405,8 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (adminPortalView) adminPortalView.style.display = 'block';
       if (navPortalLinks) navPortalLinks.style.display = 'flex';
       if (navSignOutBtn) navSignOutBtn.style.display = 'inline-flex';
-      if (tabAdmin) tabAdmin.classList.add('active');
-      if (tabUser) tabUser.classList.remove('active');
+      if (tabAdmin) { tabAdmin.style.display = 'inline-block'; tabAdmin.classList.add('active'); }
+      if (tabUser) { tabUser.style.display = 'inline-block'; tabUser.classList.remove('active'); }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (portal === 'admin-passcode') {
       if (gatewayView) gatewayView.style.display = 'none';
@@ -434,8 +434,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (userPortalView) userPortalView.style.display = 'block';
       if (navPortalLinks) navPortalLinks.style.display = 'flex';
       if (navSignOutBtn) navSignOutBtn.style.display = 'inline-flex';
-      if (tabUser) tabUser.classList.add('active');
-      if (tabAdmin) tabAdmin.classList.remove('active');
+      if (tabUser) { tabUser.style.display = 'inline-block'; tabUser.classList.add('active'); }
+      if (tabAdmin) { tabAdmin.style.display = 'none'; } // Hide Admin from regular users
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Gateway login screen
