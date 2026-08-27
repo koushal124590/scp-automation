@@ -154,13 +154,60 @@ button { font-family: inherit; cursor: pointer; border: none; }
   transition: background 0.3s ease, border-color 0.3s ease;
 }
 
-.nav-pill-left { padding-left: 20px; gap: 24px; }
+.nav-pill-left { padding-left: 14px; padding-right: 14px; gap: 20px; }
 .nav-pill-right { gap: 8px; padding: 0 8px; }
+
+.navbar-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.brand-logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar-brand-group:hover .brand-logo-container {
+  transform: scale(1.12);
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.45);
+}
+
+.brand-logo-spin {
+  animation: navbarLogoSpin 8s linear infinite;
+  transform-origin: center;
+  transition: animation-duration 0.3s ease;
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.5));
+}
+
+.navbar-brand-group:hover .brand-logo-spin {
+  animation-duration: 2s; /* Super fast smooth spin on hover! */
+}
+
+@keyframes navbarLogoSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 .navbar-brand { 
   font-family: var(--font-display);
   font-weight: 800; 
-  font-size: 22px; 
+  font-size: 20px; 
   letter-spacing: -0.04em;
   font-style: italic;
   color: var(--text-100);
