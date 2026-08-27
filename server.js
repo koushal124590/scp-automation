@@ -206,6 +206,34 @@ app.get('/api/auth/google/callback', async (req, res) => {
     }
 });
 
+// ── API: Firebase Google Auth User Sync ──
+app.post('/api/auth/firebase-user', async (req, res) => {
+    try {
+        const { email, accessToken } = req.body;
+        if (!email) return res.status(400).json({ error: 'User email required' });
+
+        const config = await readConfig();
+        config.primaryEmail = email;
+        config.active = true;
+        await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
+
+        if (accessToken) {
+            const tokenPayload = {
+                type: 'authorized_user',
+                access_token: accessToken,
+                user_email: email
+            };
+            await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(tokenPayload, null, 2));
+        }
+
+        console.log(`✅ Firebase user logged in & synchronized: ${email}`);
+        res.json({ success: true, email });
+    } catch(e) {
+        console.error('Firebase user sync error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 // ── API: Credentials Upload ──
 app.post('/api/upload-credentials', uploadCredentials.array('credentials', 5), async (req, res) => {
     try {
@@ -344,7 +372,17 @@ async function getAuthenticatedClient() {
         }
     }
 
-    // 1. Authorized User Token (token.json alone has client_id, client_secret, refresh_token)
+    // 1. Authorized User Token from Firebase OAuth (Access Token)
+    if (token && token.access_token) {
+        const oauth2Client = new google.auth.OAuth2(BUILTIN_CLIENT_ID, BUILTIN_CLIENT_SECRET);
+        oauth2Client.setCredentials({
+            access_token: token.access_token,
+            refresh_token: token.refresh_token || undefined
+        });
+        return oauth2Client;
+    }
+
+    // 2. Authorized User Token (token.json alone has client_id, client_secret, refresh_token)
     if (token && (token.type === 'authorized_user' || (token.refresh_token && token.client_id))) {
         return google.auth.fromJSON(token);
     }

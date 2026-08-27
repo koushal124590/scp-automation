@@ -5,8 +5,25 @@ import { EffectComposer, RenderPass, EffectPass, BloomEffect } from 'postprocess
 import { animate } from 'motion';
 import Lenis from 'lenis';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Firebase SDK Configuration (SCP Automation)
+const firebaseConfig = {
+  projectId: "scp-automation-96bd6",
+  appId: "1:314008905534:web:b51e1856047d1edf876e6f",
+  storageBucket: "scp-automation-96bd6.firebasestorage.app",
+  apiKey: "AIzaSyBk-VpQ3A6dSBMajxmkBKH0bg17O4o7j2Y",
+  authDomain: "scp-automation-96bd6.firebaseapp.com",
+  messagingSenderId: "314008905534"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const fbAuth = getAuth(fbApp);
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.modify');
 
 // ═══════════════════════════════════════════
 // VANILLA KINETIC TEXT SPLITTER
@@ -533,14 +550,62 @@ document.addEventListener('DOMContentLoaded', () => {
     openPortal('gateway'); // Default to Gateway login screen
   }
 
+  // 1-Click Firebase Google Sign-In System
+  async function loginWithFirebaseGoogle(btnEl) {
+    try {
+      if (btnEl) {
+        btnEl.dataset.origHtml = btnEl.innerHTML;
+        btnEl.innerHTML = '<span>Signing in with Google...</span>';
+      }
+      const result = await signInWithPopup(fbAuth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const accessToken = credential ? credential.accessToken : null;
+      const user = result.user;
+
+      if (user && user.email) {
+        localStorage.setItem('scp_user_email', user.email);
+        if (accessToken) {
+          localStorage.setItem('scp_access_token', accessToken);
+          try {
+            await fetch(`${API_BASE}/api/auth/firebase-user`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: user.email, accessToken: accessToken })
+            });
+          } catch(e) {}
+        }
+        openPortal('user');
+        refreshUserPortalState();
+      }
+    } catch (err) {
+      console.error('Firebase Google Auth Error:', err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        // User closed popup, do nothing
+      } else {
+        // Fallback to server OAuth redirect
+        window.location.href = `${API_BASE}/api/auth/google?portal=user`;
+      }
+    } finally {
+      if (btnEl && btnEl.dataset.origHtml) {
+        btnEl.innerHTML = btnEl.dataset.origHtml;
+      }
+    }
+  }
+
   // 1-Click OAuth Connect Links
   const gatewayGoogleBtn = document.getElementById('gateway-google-btn');
   if (gatewayGoogleBtn) {
-    gatewayGoogleBtn.href = `${API_BASE}/api/auth/google?portal=user`;
+    gatewayGoogleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginWithFirebaseGoogle(gatewayGoogleBtn);
+    });
   }
   const userGoogleConnectBtn = document.getElementById('user-google-connect-btn');
   if (userGoogleConnectBtn) {
-    userGoogleConnectBtn.href = `${API_BASE}/api/auth/google?portal=user`;
+    userGoogleConnectBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginWithFirebaseGoogle(userGoogleConnectBtn);
+    });
   }
 
   // 3. User Portal: State & Form Elements
