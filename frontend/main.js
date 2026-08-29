@@ -730,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Sync Logged-In User Identity
   function refreshUserPortalState() {
-    const activeUserEmail = localStorage.getItem('scp_user_email');
+    const activeUserEmail = localStorage.getItem('scp_user_email') || (fbAuth.currentUser ? fbAuth.currentUser.email : null);
     if (activeUserEmail) {
       if (userConnectedEmail) userConnectedEmail.innerText = activeUserEmail;
       if (userAuthBadge) {
@@ -1016,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Telemetry Polling Loop
+  // Telemetry Polling Loop (For Facility Admin Diagnostics Only)
   setInterval(() => {
       fetch(`${API_BASE}/api/status`)
       .then(res => res.json())
@@ -1026,20 +1026,10 @@ document.addEventListener('DOMContentLoaded', () => {
                   statusText.innerText = "Online";
                   statusText.style.color = "#10B981";
                   statusText.style.background = "rgba(16, 185, 129, 0.1)";
-                  if (userAuthBadge) {
-                    userAuthBadge.innerText = "Connected";
-                    userAuthBadge.style.color = "#10B981";
-                    userAuthBadge.style.background = "rgba(16, 185, 129, 0.1)";
-                  }
               } else {
-                  statusText.innerText = "Offline: " + (data.error || "Paused");
-                  statusText.style.color = "#EF4444";
-                  statusText.style.background = "rgba(239, 68, 68, 0.1)";
-                  if (userAuthBadge) {
-                    userAuthBadge.innerText = "Disconnected";
-                    userAuthBadge.style.color = "#EF4444";
-                    userAuthBadge.style.background = "rgba(239, 68, 68, 0.1)";
-                  }
+                  statusText.innerText = "Standby: " + (data.error || "Active");
+                  statusText.style.color = "#10B981";
+                  statusText.style.background = "rgba(16, 185, 129, 0.1)";
               }
           }
           if (processedCountText && data.messagesProcessed !== undefined) {
@@ -1052,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
               lastCheckText.innerText = "Last heartbeat: " + new Date(data.lastChecked).toLocaleTimeString();
           }
       }).catch(() => {});
-  }, 4000);
+  }, 5000);
 
   // Instructions Modal
   const instrBtn = document.getElementById('show-instructions-btn');
