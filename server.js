@@ -502,7 +502,11 @@ app.get('/api/status', async (req, res) => {
     });
 });
 
-// ── Background Failproof Polling Engine ──
+// ── Message Deduplication & Cooldown Registry ──
+const processedMessageIds = new Set();
+const repliedRecipientsMap = new Map();
+
+// ── Background Failproof Polling Engine (Strict Exactly-Once Delivery) ──
 async function pollGmailInbox() {
     try {
         const config = await readConfig();
@@ -541,6 +545,23 @@ async function pollGmailInbox() {
         console.log(`📬 Found ${messages.length} unread message(s) to process...`);
 
         for (const msg of messages) {
+            // 1. Instant In-Memory Deduplication Lock
+            if (processedMessageIds.has(msg.id)) {
+                continue;
+            }
+            processedMessageIds.add(msg.id);
+
+            // 2. Mark UNREAD Removed IMMEDIATELY in Gmail (Atomic Lock to prevent other cycles/instances from touching it)
+            try {
+                await gmail.users.messages.modify({
+                    userId: 'me',
+                    id: msg.id,
+                    requestBody: { removeLabelIds: ['UNREAD'] }
+                });
+            } catch(e) {
+                // Ignore if already marked
+            }
+
             const message = await gmail.users.messages.get({ userId: 'me', id: msg.id });
             const headers = message.data.payload.headers;
             const fromHeader = headers.find(h => h.name === 'From');
@@ -548,21 +569,35 @@ async function pollGmailInbox() {
             const messageIdHeader = headers.find(h => h.name === 'Message-ID');
 
             const fromMatch = fromHeader ? fromHeader.value.match(/<([^>]+)>/) : null;
-            const fromEmail = fromMatch ? fromMatch[1] : (fromHeader ? fromHeader.value : '');
+            const fromEmail = (fromMatch ? fromMatch[1] : (fromHeader ? fromHeader.value : '')).toLowerCase().trim();
             const originalSubject = subjectHeader ? subjectHeader.value : '';
             const messageId = messageIdHeader ? messageIdHeader.value : '';
 
-            // Filter logic
+            // 3. Prevent Self-Reply Loops
+            const myEmail = (config.primaryEmail || 'koushalcharan22@gmail.com').toLowerCase().trim();
+            if (fromEmail.includes(myEmail) || fromEmail === 'me') {
+                console.log(`⏭️ Skipping own outgoing message from: ${fromEmail}`);
+                continue;
+            }
+
+            // 4. Rate-Limit Replies to the Same Sender (Max 1 reply per 5 minutes to prevent multi-delivery spam)
+            const now = Date.now();
+            const lastReplied = repliedRecipientsMap.get(fromEmail);
+            if (lastReplied && (now - lastReplied < 5 * 60 * 1000)) {
+                console.log(`⏳ Sender ${fromEmail} was already replied to recently. Skipping duplicate reply.`);
+                continue;
+            }
+
+            // 5. Automated / Newsletter Filter
             if (config.filterMode === 'personal') {
                 const isBusinessOrOther = /@(?!gmail\.com|yahoo\.com|outlook\.com|hotmail\.com|aol\.com|icloud\.com|live\.com|msn\.com|me\.com)[^\s@]+\.[^\s@]+/.test(fromEmail);
-                if (isBusinessOrOther || fromEmail.includes('noreply') || fromEmail.includes('no-reply')) {
+                if (isBusinessOrOther || fromEmail.includes('noreply') || fromEmail.includes('no-reply') || fromEmail.includes('mailer-daemon')) {
                     console.log(`⏭️ Skipping automated/business sender: ${fromEmail}`);
-                    await gmail.users.messages.modify({ userId: 'me', id: msg.id, requestBody: { removeLabelIds: ['UNREAD'] }});
                     continue;
                 }
             }
 
-            console.log(`✉️ Auto-replying to: ${fromEmail}`);
+            console.log(`✉️ Sending EXACTLY ONE Auto-reply to: ${fromEmail}`);
 
             let replySubject = config.subjectLine;
             if (!replySubject) {
@@ -577,9 +612,9 @@ async function pollGmailInbox() {
                 messageId: messageId
             });
             
-            await gmail.users.messages.modify({ userId: 'me', id: msg.id, requestBody: { removeLabelIds: ['UNREAD'] }});
+            repliedRecipientsMap.set(fromEmail, now);
             engineStatus.messagesProcessed++;
-            console.log(`✅ Auto-reply successfully delivered to ${fromEmail}!`);
+            console.log(`✅ EXACTLY ONE Auto-reply successfully delivered to ${fromEmail}!`);
         }
     } catch (error) {
         console.error('Error polling Gmail:', error.message);
