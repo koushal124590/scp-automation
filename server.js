@@ -588,6 +588,28 @@ async function pollGmailInbox() {
     }
 }
 
+// ── Process Crash Guards (Keeps Server Online Permanently) ──
+process.on('uncaughtException', (err) => {
+    console.error('⚠️ [Guard] Uncaught Exception caught (process preserved):', err.message);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️ [Guard] Unhandled Rejection caught (process preserved):', reason ? (reason.message || reason) : 'Unknown');
+});
+
+const axios = require('axios');
+
+// ── Render 24/7 Keep-Alive Self-Pinger (Prevents Free-Tier Sleep) ──
+const PING_TARGET = process.env.RENDER_EXTERNAL_URL || 'https://scp-automation-1.onrender.com';
+setInterval(async () => {
+    try {
+        await axios.get(`${PING_TARGET}/api/status`, { timeout: 10000 });
+        console.log(`💓 [Keep-Alive] Self-ping active (Render will never sleep)`);
+    } catch (e) {
+        // Handled silently
+    }
+}, 4 * 60 * 1000); // Pings every 4 minutes
+
 // Immediate check on server boot + 15s recurring cycle
 setTimeout(pollGmailInbox, 2000);
 setInterval(pollGmailInbox, 15000);
