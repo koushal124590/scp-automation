@@ -598,6 +598,73 @@ app.post('/api/poll-now', async (req, res) => {
     res.json({ success: true, engineStatus });
 });
 
+// ═══════════════════════════════════════════
+// 📸 INSTAGRAM AUTOMATION API & META WEBHOOKS
+// ═══════════════════════════════════════════
+const instagramService = require('./services/instagramService');
+
+// Get Instagram Config
+app.get('/api/instagram/config', async (req, res) => {
+    try {
+        const config = await instagramService.readInstagramConfig();
+        res.json({ success: true, config });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Save Instagram Config
+app.post('/api/instagram/config', async (req, res) => {
+    try {
+        const saved = await instagramService.saveInstagramConfig(req.body);
+        console.log('✅ Instagram Automation Config updated:', saved.handle);
+        res.json({ success: true, config: saved });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Meta Webhook Handshake (GET)
+app.get('/api/instagram/webhook', async (req, res) => {
+    const config = await instagramService.readInstagramConfig();
+    return instagramService.verifyWebhook(req, res, config.verifyToken);
+});
+
+// Meta Webhook Event Dispatcher (POST)
+app.post('/api/instagram/webhook', async (req, res) => {
+    try {
+        const result = await instagramService.processWebhookEvent(req.body);
+        res.status(200).json(result);
+    } catch (err) {
+        console.error('Instagram webhook handling error:', err);
+        res.status(200).json({ success: false, error: err.message }); // Meta requires 200 OK
+    }
+});
+
+// Send Direct Message
+app.post('/api/instagram/send-dm', async (req, res) => {
+    try {
+        const { recipientId, text, imageUrl, quickReplies } = req.body;
+        if (!recipientId || !text) {
+            return res.status(400).json({ success: false, error: 'recipientId and text are required.' });
+        }
+        const result = await instagramService.sendInstagramDirectMessage({ recipientId, text, imageUrl, quickReplies });
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Interactive Test Trigger Simulation
+app.post('/api/instagram/test-trigger', async (req, res) => {
+    try {
+        const result = await instagramService.simulateTestTrigger(req.body);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // Public Legal & Compliance Pages (Google Verification Compliant)
 function sendLegalFile(res, filename) {
     const candidates = [

@@ -1073,18 +1073,33 @@ document.addEventListener('DOMContentLoaded', () => {
   function openInstagramModal() {
     if (igModal) {
       igModal.style.display = 'flex';
-      // Load saved settings if any
-      const saved = localStorage.getItem('scp_ig_config');
-      if (saved) {
-        try {
-          const cfg = JSON.parse(saved);
-          if (cfg.handle && igHandleInput) igHandleInput.value = cfg.handle;
-          if (cfg.storyText && igStoryText) igStoryText.value = cfg.storyText;
-          if (cfg.keywordText && igKeywordText) igKeywordText.value = cfg.keywordText;
-          if (igSimHandle && cfg.handle) igSimHandle.innerText = `@${cfg.handle.replace('@','')}`;
-          if (igSimBubble && cfg.storyText) igSimBubble.innerText = cfg.storyText;
-        } catch(e) {}
-      }
+      
+      // Fetch live config from backend
+      fetch(`${API_BASE}/api/instagram/config`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.config) {
+            const cfg = data.config;
+            if (cfg.handle && igHandleInput) igHandleInput.value = cfg.handle;
+            if (cfg.storyText && igStoryText) igStoryText.value = cfg.storyText;
+            if (cfg.keywordText && igKeywordText) igKeywordText.value = cfg.keywordText;
+            if (igSimHandle && cfg.handle) igSimHandle.innerText = `@${cfg.handle.replace('@','')}`;
+            if (igSimBubble && cfg.storyText) igSimBubble.innerText = cfg.storyText;
+          }
+        })
+        .catch(() => {
+          const saved = localStorage.getItem('scp_ig_config');
+          if (saved) {
+            try {
+              const cfg = JSON.parse(saved);
+              if (cfg.handle && igHandleInput) igHandleInput.value = cfg.handle;
+              if (cfg.storyText && igStoryText) igStoryText.value = cfg.storyText;
+              if (cfg.keywordText && igKeywordText) igKeywordText.value = cfg.keywordText;
+              if (igSimHandle && cfg.handle) igSimHandle.innerText = `@${cfg.handle.replace('@','')}`;
+              if (igSimBubble && cfg.storyText) igSimBubble.innerText = cfg.storyText;
+            } catch(e) {}
+          }
+        });
     }
   }
 
@@ -1111,9 +1126,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Save Settings
+  // Save Settings to Backend & LocalStorage
   if (igSaveBtn) {
-    igSaveBtn.addEventListener('click', () => {
+    igSaveBtn.addEventListener('click', async () => {
       const config = {
         handle: igHandleInput ? igHandleInput.value.trim() : 'koushal_charan',
         storyText: igStoryText ? igStoryText.value : '',
@@ -1121,24 +1136,49 @@ document.addEventListener('DOMContentLoaded', () => {
         active: true,
         savedAt: new Date().toISOString()
       };
+      
       localStorage.setItem('scp_ig_config', JSON.stringify(config));
+
+      try {
+        await fetch(`${API_BASE}/api/instagram/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+      } catch(e) {}
       
       if (igSaveStatus) {
         igSaveStatus.style.display = 'block';
-        igSaveStatus.innerText = '✅ Instagram Automation Engine Saved & Online!';
+        igSaveStatus.innerText = '✅ Instagram 24/7 Automation Engine Activated & Online!';
         setTimeout(() => { igSaveStatus.style.display = 'none'; }, 4000);
       }
     });
   }
 
-  // Test Live DM Simulator Animation
+  // Test Live DM Simulator with Backend
   if (igTestBtn && igSimBubble) {
-    igTestBtn.addEventListener('click', () => {
-      const origText = igSimBubble.innerText;
-      igSimBubble.innerText = 'Typing... 💬';
-      setTimeout(() => {
-        igSimBubble.innerText = igStoryText ? igStoryText.value : origText;
-      }, 700);
+    igTestBtn.addEventListener('click', async () => {
+      igSimBubble.innerText = 'Typing automated response... 💬';
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/instagram/test-trigger`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventType: 'story',
+            userHandle: igHandleInput ? igHandleInput.value : 'koushal_charan',
+            messageText: igStoryText ? igStoryText.value : ''
+          })
+        });
+        const data = await res.json();
+        setTimeout(() => {
+          igSimBubble.innerText = data.automatedResponse || (igStoryText ? igStoryText.value : 'Automated DM sent!');
+        }, 500);
+      } catch(e) {
+        setTimeout(() => {
+          igSimBubble.innerText = igStoryText ? igStoryText.value : 'Thanks for mentioning me! Here is my card:';
+        }, 500);
+      }
     });
   }
 });
