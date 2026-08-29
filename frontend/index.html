@@ -33,6 +33,22 @@
           </div>
           <span class="navbar-brand" style="margin: 0;">SCP</span>
         </div>
+        <button type="button" class="btn-ig-pill" id="nav-instagram-btn" title="Launch Instagram Automation Studio">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <radialGradient id="igGradNav" cx="30%" cy="107%" r="150%">
+              <stop offset="0%" stop-color="#fdf497" />
+              <stop offset="5%" stop-color="#fdf497" />
+              <stop offset="45%" stop-color="#fd5949" />
+              <stop offset="60%" stop-color="#d6249f" />
+              <stop offset="90%" stop-color="#285AEB" />
+            </radialGradient>
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#igGradNav)" stroke-width="2.2" />
+            <circle cx="12" cy="12" r="4" stroke="url(#igGradNav)" stroke-width="2.2" />
+            <circle cx="17.5" cy="6.5" r="1.2" fill="url(#igGradNav)" />
+          </svg>
+          <span>Instagram Automation</span>
+          <span class="ig-badge">LIVE</span>
+        </button>
         <div class="navbar-links" id="nav-portal-links" style="display: none;">
           <button type="button" class="portal-tab-btn active" id="tab-user-portal">👤 User Portal</button>
           <button type="button" class="portal-tab-btn" id="tab-admin-portal">🛡️ Admin Portal</button>
@@ -56,53 +72,74 @@
           Authenticate Your Portal
         </h1>
         <p class="t-body" style="max-width: 620px; margin: 0 auto 40px; font-size: 16px;">
-          Select your access level to manage your 24/7 Gmail Auto-Responder, upload custom business cards, and monitor system telemetry.
+          Select your access level to manage your 24/7 Gmail & Instagram Auto-Responders, upload custom business cards, and monitor live telemetry.
         </p>
 
         <!-- Gateway Authentication Cards -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; text-align: left;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; max-width: 1050px; margin: 0 auto; text-align: left;">
           
           <!-- Gateway Card 1: Normal User Login (1-Click Google Only) -->
-          <div class="squircle-card" style="padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="squircle-card" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
             <div class="card-crosshair top-left"></div>
             <div class="card-crosshair top-right"></div>
             <div>
               <div style="display: inline-block; padding: 4px 10px; border-radius: 20px; background: rgba(59, 130, 246, 0.1); color: #3B82F6; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 12px;">
                 USER AUTHENTICATION
               </div>
-              <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">👤 Normal User Login</h2>
+              <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">👤 Gmail User Portal</h2>
               <p class="t-body" style="margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
-                Sign in with your Google account to access your personalized 24/7 auto-reply engine, upload your custom business card, and test live email deliveries.
+                Sign in with Google to access your personalized 24/7 Gmail auto-reply engine, upload your custom business card, and test live email deliveries.
               </p>
             </div>
 
             <div>
-              <a id="gateway-google-btn" href="https://scp-automation-1.onrender.com/api/auth/google?portal=user" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; height: 48px; font-size: 15px; font-weight: 600;">
+              <a id="gateway-google-btn" href="https://scp-automation-1.onrender.com/api/auth/google?portal=user" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; height: 48px; font-size: 14px; font-weight: 600;">
                 <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-                Sign in with Google (1-Click)
+                Sign in with Google
               </a>
             </div>
           </div>
 
-          <!-- Gateway Card 2: Admin Portal Login Button -->
-          <div class="squircle-card" style="padding: 36px 30px; display: flex; flex-direction: column; justify-content: space-between;">
+          <!-- Gateway Card 2: Instagram Automation Card -->
+          <div class="squircle-card card-ig-glow" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="card-crosshair top-left"></div>
+            <div class="card-crosshair top-right"></div>
+            <div>
+              <div style="display: inline-block; padding: 4px 10px; border-radius: 20px; background: rgba(225, 48, 108, 0.12); color: #F43F5E; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 12px;">
+                📸 SOCIAL MEDIA AI
+              </div>
+              <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">📸 Instagram Automation</h2>
+              <p class="t-body" style="margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
+                Auto-respond to Instagram Direct Messages, Story mentions, and Reel comments with your digital business card and custom trigger keywords.
+              </p>
+            </div>
+
+            <div>
+              <button type="button" class="btn btn-ig-action" id="gateway-instagram-btn" style="width: 100%; height: 48px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                📸 Launch Instagram DM Studio →
+              </button>
+            </div>
+          </div>
+
+          <!-- Gateway Card 3: Admin Portal Login Button -->
+          <div class="squircle-card" style="padding: 36px 28px; display: flex; flex-direction: column; justify-content: space-between;">
             <div class="card-crosshair top-left"></div>
             <div class="card-crosshair top-right"></div>
             <div>
               <div style="display: inline-block; padding: 4px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); color: #10B981; font-size: 11px; font-weight: 700; font-family: monospace; margin-bottom: 12px;">
                 FACILITY DIRECTORS
               </div>
-              <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">🛡️ Admin Portal</h2>
+              <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text-100);">🛡️ Admin Portal</h2>
               <p class="t-body" style="margin-bottom: 24px; font-size: 14px; line-height: 1.6;">
-                Restricted facility administration console. Manage Google API keys vault, configure background polling loops, and inspect runtime telemetry.
+                Restricted facility administration console. Manage Google API keys vault, configure polling loops, and inspect runtime telemetry.
               </p>
             </div>
 
             <div>
-              <button type="button" class="btn btn-primary" id="gateway-enter-admin-btn" style="width: 100%; height: 48px; font-size: 15px; font-weight: 600; margin-bottom: 10px;">
+              <button type="button" class="btn btn-primary" id="gateway-enter-admin-btn" style="width: 100%; height: 48px; font-size: 14px; font-weight: 600; margin-bottom: 10px;">
                 🛡️ Enter Admin Console →
               </button>
-              <button type="button" class="btn btn-secondary" id="gateway-admin-docs-btn" style="width: 100%; height: 40px; font-size: 13px;">
+              <button type="button" class="btn btn-secondary" id="gateway-admin-docs-btn" style="width: 100%; height: 38px; font-size: 12px;">
                 📖 Credentials Guide
               </button>
             </div>
@@ -555,6 +592,138 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- 📸 INSTAGRAM AUTOMATION STUDIO MODAL -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="instagram-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 999999; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: var(--bg-card); max-width: 960px; width: 100%; padding: 36px 32px; border-radius: 28px; border: 1px solid rgba(225, 48, 108, 0.3); box-shadow: 0 24px 60px rgba(0,0,0,0.9); max-height: 90vh; overflow-y: auto; color: var(--text-100);">
+        
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="ig-avatar" style="width: 42px; height: 42px;">
+              <div class="ig-avatar-inner" style="font-size: 18px;">📸</div>
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h2 style="font-size: 22px; font-weight: 700; margin: 0; color: var(--text-100);">Instagram Automation Studio</h2>
+                <span class="ig-badge">PRO ENGINE</span>
+              </div>
+              <p class="t-body" style="font-size: 13px; margin: 0; color: var(--text-64);">24/7 Intelligent Story Mention & Direct Message Auto-Responder</p>
+            </div>
+          </div>
+          <button type="button" id="close-ig-modal-btn" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border); color: var(--text-80); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+
+        <!-- Studio Grid Layout -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; align-items: start;">
+          
+          <!-- Left: Automation Rules & Settings -->
+          <div>
+            <!-- Account Handle -->
+            <div style="margin-bottom: 18px;">
+              <label class="t-body" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Instagram Account Handle</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 14px; top: 12px; color: #F43F5E; font-weight: 700;">@</span>
+                <input type="text" id="ig-handle-input" class="form-input" value="koushal_charan" style="padding-left: 32px; font-weight: 600;" />
+              </div>
+            </div>
+
+            <!-- Auto-DM Trigger 1: Story Mention -->
+            <div style="margin-bottom: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="t-body" style="font-size: 13px; font-weight: 600;">🏷️ Story Mention Auto-Reply</label>
+                <input type="checkbox" id="ig-story-toggle" checked style="accent-color: #DD2A7B; width: 16px; height: 16px;" />
+              </div>
+              <textarea id="ig-story-text" class="form-input" rows="2" style="font-size: 13px; resize: vertical;">Thanks for mentioning me in your story! 🚀 Here is my direct digital business card and portfolio.</textarea>
+            </div>
+
+            <!-- Auto-DM Trigger 2: Keyword Rules -->
+            <div style="margin-bottom: 18px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="t-body" style="font-size: 13px; font-weight: 600;">⚡ Keyword Trigger Auto-DM</label>
+                <span style="font-size: 11px; font-family: monospace; color: #F43F5E;">Keywords: PRICE, CARD, INFO</span>
+              </div>
+              <textarea id="ig-keyword-text" class="form-input" rows="2" style="font-size: 13px; resize: vertical;">Hey there! Thanks for reaching out. Here is my full contact card and quick booking link:</textarea>
+            </div>
+
+            <!-- Auto-DM Trigger 3: Reel Comment-to-DM -->
+            <div style="margin-bottom: 22px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="t-body" style="font-size: 13px; font-weight: 600;">🎬 Reel Comment-to-DM</label>
+                <input type="checkbox" id="ig-reel-toggle" checked style="accent-color: #DD2A7B; width: 16px; height: 16px;" />
+              </div>
+              <p style="font-size: 12px; color: var(--text-64); margin: 0;">Automatically sends a direct message to anyone commenting on your latest reels.</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 12px;">
+              <button type="button" id="ig-save-btn" class="btn btn-ig-action" style="flex: 1; height: 46px; font-size: 14px;">
+                💾 Save & Enable Bot
+              </button>
+              <button type="button" id="ig-test-btn" class="btn btn-secondary" style="flex: 1; height: 46px; font-size: 14px;">
+                ⚡ Test Live DM
+              </button>
+            </div>
+            <p id="ig-save-status" style="margin-top: 10px; font-size: 13px; color: #10B981; text-align: center; display: none;">✅ Instagram Automation Settings Saved & Active!</p>
+          </div>
+
+          <!-- Right: Interactive Live Instagram DM Mobile Simulator -->
+          <div>
+            <div class="ig-phone-frame">
+              <!-- Phone Status Bar -->
+              <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #888; margin-bottom: 10px; padding: 0 4px;">
+                <span>9:41</span>
+                <span>5G 📶 100% 🔋</span>
+              </div>
+
+              <!-- Phone Chat Header -->
+              <div class="ig-phone-header">
+                <div class="ig-avatar">
+                  <div class="ig-avatar-inner">SC</div>
+                </div>
+                <div>
+                  <strong style="font-size: 13px; color: #fff; display: block;" id="ig-sim-handle">@koushal_charan</strong>
+                  <span style="font-size: 10px; color: #10B981;">● Active now • Instagram</span>
+                </div>
+              </div>
+
+              <!-- Chat Messages Flow -->
+              <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-end; padding: 6px 0;">
+                <!-- Incoming DM from Lead -->
+                <div class="ig-bubble-in">
+                  Hey! Saw your reel, loved your SCP automation tool! How can I contact you?
+                </div>
+
+                <!-- Automated Response from SCP Bot -->
+                <div class="ig-bubble-out" id="ig-sim-bubble-text">
+                  Thanks for reaching out! 🚀 Here is my official SCP AIML Engineer business card and direct line:
+                </div>
+
+                <!-- Business Card Attachment Preview -->
+                <div style="align-self: flex-end; max-width: 85%; background: #181818; padding: 8px; border-radius: 14px; margin-bottom: 8px; border: 1px solid #333;">
+                  <img src="/card.svg" alt="Card Preview" style="width: 100%; border-radius: 8px; display: block;" />
+                  <div style="margin-top: 6px; text-align: center;">
+                    <a href="mailto:koushalcharan22@gmail.com" class="ig-quick-btn">📧 Send Email</a>
+                    <span class="ig-quick-btn" style="margin-left: 4px;">📞 +91 9542265255</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phone Bottom Bar -->
+              <div style="background: #1c1c1c; border-radius: 20px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #666;">
+                <span>Message...</span>
+                <span>🎙️ 🖼️ ❤️</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
     <script type="module" src="/main.js"></script>
   </body>
 </html>
+

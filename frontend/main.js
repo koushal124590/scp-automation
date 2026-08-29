@@ -1052,6 +1052,95 @@ document.addEventListener('DOMContentLoaded', () => {
       instrBtn.addEventListener('click', () => instrModal.style.display = 'flex');
       closeBtn.addEventListener('click', () => instrModal.style.display = 'none');
   }
+
+  // ═══════════════════════════════════════════
+  // 📸 INSTAGRAM AUTOMATION STUDIO CONTROLLER
+  // ═══════════════════════════════════════════
+  const navIgBtn = document.getElementById('nav-instagram-btn');
+  const gatewayIgBtn = document.getElementById('gateway-instagram-btn');
+  const igModal = document.getElementById('instagram-modal');
+  const closeIgBtn = document.getElementById('close-ig-modal-btn');
+
+  const igHandleInput = document.getElementById('ig-handle-input');
+  const igStoryText = document.getElementById('ig-story-text');
+  const igKeywordText = document.getElementById('ig-keyword-text');
+  const igSimHandle = document.getElementById('ig-sim-handle');
+  const igSimBubble = document.getElementById('ig-sim-bubble-text');
+  const igSaveBtn = document.getElementById('ig-save-btn');
+  const igTestBtn = document.getElementById('ig-test-btn');
+  const igSaveStatus = document.getElementById('ig-save-status');
+
+  function openInstagramModal() {
+    if (igModal) {
+      igModal.style.display = 'flex';
+      // Load saved settings if any
+      const saved = localStorage.getItem('scp_ig_config');
+      if (saved) {
+        try {
+          const cfg = JSON.parse(saved);
+          if (cfg.handle && igHandleInput) igHandleInput.value = cfg.handle;
+          if (cfg.storyText && igStoryText) igStoryText.value = cfg.storyText;
+          if (cfg.keywordText && igKeywordText) igKeywordText.value = cfg.keywordText;
+          if (igSimHandle && cfg.handle) igSimHandle.innerText = `@${cfg.handle.replace('@','')}`;
+          if (igSimBubble && cfg.storyText) igSimBubble.innerText = cfg.storyText;
+        } catch(e) {}
+      }
+    }
+  }
+
+  if (navIgBtn) navIgBtn.addEventListener('click', openInstagramModal);
+  if (gatewayIgBtn) gatewayIgBtn.addEventListener('click', openInstagramModal);
+  if (closeIgBtn && igModal) {
+    closeIgBtn.addEventListener('click', () => igModal.style.display = 'none');
+    igModal.addEventListener('click', (e) => {
+      if (e.target === igModal) igModal.style.display = 'none';
+    });
+  }
+
+  // Live typing preview for phone simulator
+  if (igHandleInput && igSimHandle) {
+    igHandleInput.addEventListener('input', () => {
+      const h = igHandleInput.value.trim().replace('@', '');
+      igSimHandle.innerText = h ? `@${h}` : '@username';
+    });
+  }
+
+  if (igStoryText && igSimBubble) {
+    igStoryText.addEventListener('input', () => {
+      igSimBubble.innerText = igStoryText.value || 'Thanks for reaching out! Here is my digital business card:';
+    });
+  }
+
+  // Save Settings
+  if (igSaveBtn) {
+    igSaveBtn.addEventListener('click', () => {
+      const config = {
+        handle: igHandleInput ? igHandleInput.value.trim() : 'koushal_charan',
+        storyText: igStoryText ? igStoryText.value : '',
+        keywordText: igKeywordText ? igKeywordText.value : '',
+        active: true,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem('scp_ig_config', JSON.stringify(config));
+      
+      if (igSaveStatus) {
+        igSaveStatus.style.display = 'block';
+        igSaveStatus.innerText = '✅ Instagram Automation Engine Saved & Online!';
+        setTimeout(() => { igSaveStatus.style.display = 'none'; }, 4000);
+      }
+    });
+  }
+
+  // Test Live DM Simulator Animation
+  if (igTestBtn && igSimBubble) {
+    igTestBtn.addEventListener('click', () => {
+      const origText = igSimBubble.innerText;
+      igSimBubble.innerText = 'Typing... 💬';
+      setTimeout(() => {
+        igSimBubble.innerText = igStoryText ? igStoryText.value : origText;
+      }, 700);
+    });
+  }
 });
 
 
