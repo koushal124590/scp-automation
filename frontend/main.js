@@ -1018,11 +1018,89 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Telemetry Polling Loop (For Facility Admin Diagnostics Only)
+  // ── Stop / Resume Automation Controller ──
+  const userToggleAutomationBtn = document.getElementById('user-toggle-automation-btn');
+  const userSentCounter = document.getElementById('user-sent-counter');
+  const userActiveInboxesCount = document.getElementById('user-active-inboxes-count');
+  const userLiveEngineStatus = document.getElementById('user-live-engine-status');
+  const userLiveHeartbeat = document.getElementById('user-live-heartbeat');
+  const userDisconnectBtn = document.getElementById('user-disconnect-btn');
+
+  let isBotCurrentlyActive = true;
+
+  function updateBotStatusUI(isActive) {
+    isBotCurrentlyActive = isActive;
+    if (userToggleAutomationBtn) {
+      if (isActive) {
+        userToggleAutomationBtn.innerText = '⏸️ Stop Automation';
+        userToggleAutomationBtn.style.background = 'rgba(239, 68, 68, 0.15)';
+        userToggleAutomationBtn.style.color = '#EF4444';
+        userToggleAutomationBtn.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+      } else {
+        userToggleAutomationBtn.innerText = '▶️ Resume Automation';
+        userToggleAutomationBtn.style.background = 'rgba(16, 185, 129, 0.15)';
+        userToggleAutomationBtn.style.color = '#10B981';
+        userToggleAutomationBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      }
+    }
+    if (userLiveEngineStatus) {
+      if (isActive) {
+        userLiveEngineStatus.innerText = '● ONLINE (Active)';
+        userLiveEngineStatus.style.color = '#10B981';
+      } else {
+        userLiveEngineStatus.innerText = '🔴 PAUSED (Stopped)';
+        userLiveEngineStatus.style.color = '#EF4444';
+      }
+    }
+  }
+
+  if (userToggleAutomationBtn) {
+    userToggleAutomationBtn.addEventListener('click', async () => {
+      const newState = !isBotCurrentlyActive;
+      updateBotStatusUI(newState);
+      if (botToggle) botToggle.checked = newState;
+
+      try {
+        await fetch(`${API_BASE}/api/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: newState })
+        });
+      } catch(e) {}
+    });
+  }
+
+  if (userDisconnectBtn) {
+    userDisconnectBtn.addEventListener('click', async () => {
+      localStorage.removeItem('scp_user_email');
+      localStorage.removeItem('scp_access_token');
+      try {
+        await signOut(fbAuth);
+      } catch(e) {}
+      refreshUserPortalState();
+      openPortal('gateway');
+    });
+  }
+
+  // Telemetry Polling Loop (Live Tracker Sync)
   setInterval(() => {
       fetch(`${API_BASE}/api/status`)
       .then(res => res.json())
       .then(data => {
+          if (data.botActive !== undefined) {
+              updateBotStatusUI(data.botActive);
+          }
+
+          if (userSentCounter && data.messagesProcessed !== undefined) {
+              userSentCounter.innerText = data.messagesProcessed;
+          }
+          if (userActiveInboxesCount && data.activeUsersCount !== undefined) {
+              userActiveInboxesCount.innerText = data.activeUsersCount;
+          }
+          if (userLiveHeartbeat && data.lastChecked) {
+              userLiveHeartbeat.innerText = new Date(data.lastChecked).toLocaleTimeString();
+          }
+
           if (statusText) {
               if (data.isRunning) {
                   statusText.innerText = "Online";
@@ -1044,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
               lastCheckText.innerText = "Last heartbeat: " + new Date(data.lastChecked).toLocaleTimeString();
           }
       }).catch(() => {});
-  }, 5000);
+  }, 4000);
 
   // Instructions Modal
   const instrBtn = document.getElementById('show-instructions-btn');
