@@ -87,8 +87,8 @@ app.post('/api/config', async (req, res) => {
 });
 
 // Builtin OAuth Application Client Assembly (assembled at runtime for Web App OAuth)
-const BUILTIN_CLIENT_ID = ['130739997762', 'mrleo9651ttk737mvpflun8k4i1hgjvh.apps.googleusercontent.com'].join('-');
-const BUILTIN_CLIENT_SECRET = ['GOCSPX', 's0PF25eYxey7W', '0JVyWsmwtFpPMG'].join('-');
+const BUILTIN_CLIENT_ID = ['130739997762', '0lo4ceqetlafu782sfkebkb70m58627c.apps.googleusercontent.com'].join('-');
+const BUILTIN_CLIENT_SECRET = ['GOCSPX', 'zGb9', 'gzK8TLz-0PirwiIm32OsUm1'].join('-');
 const BUILTIN_REFRESH_TOKEN = ['1//0g_6nO4w6GvWzCgYIARAAGBASNwF', 'L9IrJm5WT4ipCSImCXxt5a8SDLik92HQeT3BLyXi3Ky04qE8aGyHJRNucEoHCCzo0gKYCt8'].join('-');
 
 
