@@ -6,7 +6,7 @@ import { animate } from 'motion';
 import Lenis from 'lenis';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,6 +24,7 @@ const fbApp = initializeApp(firebaseConfig);
 const fbAuth = getAuth(fbApp);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/gmail.modify');
+googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // ═══════════════════════════════════════════
 // VANILLA KINETIC TEXT SPLITTER
@@ -540,9 +541,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (tabUser) tabUser.addEventListener('click', () => openPortal('user'));
   if (tabAdmin) tabAdmin.addEventListener('click', () => openPortal('admin-passcode'));
-  if (navSignOutBtn) navSignOutBtn.addEventListener('click', () => openPortal('gateway'));
   if (navHomeBtn) navHomeBtn.addEventListener('click', () => openPortal('gateway'));
   exitPortalBtns.forEach(btn => btn.addEventListener('click', () => openPortal('gateway')));
+
+  if (navSignOutBtn) {
+    navSignOutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(fbAuth);
+      } catch(e) {}
+      localStorage.removeItem('scp_user_email');
+      localStorage.removeItem('scp_access_token');
+      refreshUserPortalState();
+      openPortal('gateway');
+    });
+  }
+
+  // Persistent Firebase Auth State Listener (Syncs Any Logged In User)
+  onAuthStateChanged(fbAuth, async (user) => {
+    if (user && user.email) {
+      localStorage.setItem('scp_user_email', user.email);
+      refreshUserPortalState();
+    }
+  });
 
   let userVerifyTimer = null;
 
@@ -613,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (btnEl) {
         btnEl.dataset.origHtml = btnEl.innerHTML;
-        btnEl.innerHTML = '<span>Signing in with Google...</span>';
+        btnEl.innerHTML = '<span>Connecting to Google...</span>';
       }
       const result = await signInWithPopup(fbAuth, googleProvider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -624,14 +644,17 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('scp_user_email', user.email);
         if (accessToken) {
           localStorage.setItem('scp_access_token', accessToken);
-          try {
-            await fetch(`${API_BASE}/api/auth/firebase-user`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: user.email, accessToken: accessToken })
-            });
-          } catch(e) {}
         }
+        try {
+          await fetch(`${API_BASE}/api/auth/firebase-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email, accessToken: accessToken || '' })
+          });
+        } catch(e) {
+          console.warn('Backend sync note:', e);
+        }
+        refreshUserPortalState();
         triggerUserVerificationFlow(user.email);
       }
     } catch (err) {
