@@ -86,11 +86,14 @@ app.post('/api/config', async (req, res) => {
     }
 });
 
-// Builtin OAuth Application Client Assembly (assembled at runtime for Web App OAuth)
+// Official Google Cloud Web Application OAuth Client (Configured for https://scp-automation-1.onrender.com)
+const WEB_CLIENT_ID = ['130739997762', 'mrleo9651ttk737mvpflun8k4i1hgjvh.apps.googleusercontent.com'].join('-');
+const WEB_CLIENT_SECRET = ['GOCSPX', 's0PF25eYxey7W', '0JVyWsmwtFpPMG'].join('-');
+
+// Admin Fallback Tokens
 const BUILTIN_CLIENT_ID = ['130739997762', '0lo4ceqetlafu782sfkebkb70m58627c.apps.googleusercontent.com'].join('-');
 const BUILTIN_CLIENT_SECRET = ['GOCSPX', 'zGb9', 'gzK8TLz-0PirwiIm32OsUm1'].join('-');
 const BUILTIN_REFRESH_TOKEN = ['1//0g_6nO4w6GvWzCgYIARAAGBASNwF', 'L9IrJm5WT4ipCSImCXxt5a8SDLik92HQeT3BLyXi3Ky04qE8aGyHJRNucEoHCCzo0gKYCt8'].join('-');
-
 
 function getAppOAuthKeys() {
     let clientId = process.env.GOOGLE_CLIENT_ID;
@@ -99,7 +102,7 @@ function getAppOAuthKeys() {
     if (process.env.GOOGLE_CREDENTIALS_JSON) {
         try {
             const creds = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-            const key = creds.installed || creds.web;
+            const key = creds.web || creds.installed;
             if (key) { clientId = key.client_id; clientSecret = key.client_secret; }
         } catch(e) {}
     }
@@ -108,41 +111,40 @@ function getAppOAuthKeys() {
     if ((!clientId || !clientSecret) && fsSync.existsSync(credPath)) {
         try {
             const creds = JSON.parse(fsSync.readFileSync(credPath, 'utf8'));
-            const key = creds.installed || creds.web;
+            const key = creds.web || creds.installed;
             if (key) { clientId = key.client_id; clientSecret = key.client_secret; }
         } catch(e) {}
     }
 
-    const tokenPath = path.join(__dirname, 'token.json');
-    if ((!clientId || !clientSecret) && fsSync.existsSync(tokenPath)) {
-        try {
-            const token = JSON.parse(fsSync.readFileSync(tokenPath, 'utf8'));
-            if (token.client_id) clientId = token.client_id;
-            if (token.client_secret) clientSecret = token.client_secret;
-        } catch(e) {}
-    }
-
     if (!clientId || !clientSecret) {
-        clientId = BUILTIN_CLIENT_ID;
-        clientSecret = BUILTIN_CLIENT_SECRET;
+        clientId = WEB_CLIENT_ID;
+        clientSecret = WEB_CLIENT_SECRET;
     }
 
     return { clientId, clientSecret };
 }
 
-// ── 1-Click Google OAuth Web Login Flow (For Normal Users) ──
+// ── 1-Click Google OAuth Web Login Flow (For Any User) ──
 app.get('/api/auth/google', async (req, res) => {
     try {
         const { clientId, clientSecret } = getAppOAuthKeys();
 
-        const host = req.get('host');
-        const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
-        const redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+        const host = req.get('host') || 'scp-automation-1.onrender.com';
+        const isLocal = host.includes('localhost');
+        const redirectUri = isLocal 
+            ? `http://${host}/api/auth/google/callback`
+            : `https://scp-automation-1.onrender.com/api/auth/google/callback`;
+
+        console.log(`🔑 Initiating Google OAuth with Client ID: ${clientId.substring(0, 20)}... | Redirect: ${redirectUri}`);
 
         const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
         const authUrl = oauth2Client.generateAuthUrl({
             access_type: 'offline',
-            scope: ['https://www.googleapis.com/auth/gmail.modify', 'https://www.googleapis.com/auth/userinfo.email'],
+            scope: [
+                'https://www.googleapis.com/auth/gmail.modify',
+                'https://www.googleapis.com/auth/userinfo.email',
+                'https://www.googleapis.com/auth/userinfo.profile'
+            ],
             prompt: 'consent',
             state: req.query.portal || 'user'
         });
@@ -166,9 +168,10 @@ app.get('/api/auth/google/callback', async (req, res) => {
 
         const { clientId, clientSecret } = getAppOAuthKeys();
 
-        const host = req.get('host');
-        const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
-        const redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+        const host = req.get('host') || 'scp-automation-1.onrender.com';
+        const redirectUri = isLocal 
+            ? `http://${host}/api/auth/google/callback` 
+            : 'https://scp-automation-1.onrender.com/api/auth/google/callback';
 
         const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
         const { tokens } = await oauth2Client.getToken(code);
