@@ -353,58 +353,47 @@ async function getAuthenticatedClient() {
         credentials = JSON.parse(await fs.readFile(credPath, 'utf8'));
     } catch (e) {}
 
-    if (!token && !credentials) {
-        if (process.env.GOOGLE_TOKEN_JSON) {
-            try {
-                token = JSON.parse(process.env.GOOGLE_TOKEN_JSON);
-            } catch(e) {}
-        } else if (process.env.GOOGLE_CREDENTIALS_JSON) {
-            try {
-                credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-            } catch(e) {}
-        } else {
-            token = {
-                type: 'authorized_user',
-                client_id: BUILTIN_CLIENT_ID,
-                client_secret: BUILTIN_CLIENT_SECRET,
-                refresh_token: process.env.GOOGLE_REFRESH_TOKEN || BUILTIN_REFRESH_TOKEN
-            };
-        }
-    }
-
-    // 1. Authorized User Token from Firebase OAuth (Access Token)
-    if (token && token.access_token) {
-        const oauth2Client = new google.auth.OAuth2(BUILTIN_CLIENT_ID, BUILTIN_CLIENT_SECRET);
-        oauth2Client.setCredentials({
-            access_token: token.access_token,
-            refresh_token: token.refresh_token || undefined
-        });
-        return oauth2Client;
-    }
-
-    // 2. Authorized User Token (token.json alone has client_id, client_secret, refresh_token)
+    // 1. Direct Self-Contained Authorized User Token (token.json has its own client_id & refresh_token)
     if (token && (token.type === 'authorized_user' || (token.refresh_token && token.client_id))) {
         return google.auth.fromJSON(token);
     }
 
-    // 2. Separate Credentials + Token
+    // 2. Authorized User Token from Firebase OAuth (Access Token)
+    if (token && token.access_token) {
+        const { clientId, clientSecret } = getAppOAuthKeys();
+        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
+        oauth2Client.setCredentials({
+            access_token: token.access_token,
+            refresh_token: token.refresh_token || BUILTIN_REFRESH_TOKEN
+        });
+        return oauth2Client;
+    }
+
+    // 3. Environment Variable JSON Fallback
+    if (process.env.GOOGLE_TOKEN_JSON) {
+        try {
+            return google.auth.fromJSON(JSON.parse(process.env.GOOGLE_TOKEN_JSON));
+        } catch(e) {}
+    }
+
+    // 4. Separate Credentials + Token
     if (credentials && token) {
         const auth = google.auth.fromJSON(credentials);
         auth.setCredentials(token);
         return auth;
     }
 
-    // 3. Only Credentials uploaded (needs token)
-    if (credentials && !token) {
-        throw new Error("OAuth Client Credentials uploaded, but token.json is required to authorize your Gmail account. Please upload token.json.");
+    // 5. Builtin Token fallback
+    if (BUILTIN_REFRESH_TOKEN) {
+        return google.auth.fromJSON({
+            type: 'authorized_user',
+            client_id: BUILTIN_CLIENT_ID,
+            client_secret: BUILTIN_CLIENT_SECRET,
+            refresh_token: process.env.GOOGLE_REFRESH_TOKEN || BUILTIN_REFRESH_TOKEN
+        });
     }
 
-    // 4. Token fallback
-    if (token) {
-        return google.auth.fromJSON(token);
-    }
-
-    throw new Error("Please upload token.json to grant Gmail API access.");
+    throw new Error("Please connect your Gmail account via 1-Click Google Sign-In or upload token.json.");
 }
 
 // Core Email Sender Function
@@ -514,7 +503,7 @@ app.get('/api/status', async (req, res) => {
 });
 
 // ── Background Failproof Polling Engine ──
-setInterval(async () => {
+async function pollGmailInbox() {
     try {
         const config = await readConfig();
 
@@ -530,6 +519,7 @@ setInterval(async () => {
         } catch (authErr) {
             engineStatus.isRunning = false;
             engineStatus.error = authErr.message;
+            console.error('Auth error in polling engine:', authErr.message);
             return;
         }
 
@@ -589,13 +579,24 @@ setInterval(async () => {
             
             await gmail.users.messages.modify({ userId: 'me', id: msg.id, requestBody: { removeLabelIds: ['UNREAD'] }});
             engineStatus.messagesProcessed++;
+            console.log(`✅ Auto-reply successfully delivered to ${fromEmail}!`);
         }
     } catch (error) {
         console.error('Error polling Gmail:', error.message);
         engineStatus.isRunning = false;
         engineStatus.error = error.message;
     }
-}, 30000); // Polls every 30 seconds
+}
+
+// Immediate check on server boot + 15s recurring cycle
+setTimeout(pollGmailInbox, 2000);
+setInterval(pollGmailInbox, 15000);
+
+// API endpoint to trigger instant manual inbox check
+app.post('/api/poll-now', async (req, res) => {
+    await pollGmailInbox();
+    res.json({ success: true, engineStatus });
+});
 
 // Public Legal & Compliance Pages (Google Verification Compliant)
 function sendLegalFile(res, filename) {

@@ -1,0 +1,7 @@
+Write-Host "Installing OpenSSH Server on Windows..." -ForegroundColor Cyan
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Start-Service sshd
+Set-Service -Name sshd -StartupType 'Automatic'
+New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22 -ErrorAction SilentlyContinue
+Write-Host "OpenSSH Server successfully installed and running on Port 22!" -ForegroundColor Green
+Start-Sleep -Seconds 3
