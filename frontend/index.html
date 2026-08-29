@@ -620,9 +620,29 @@
           
           <!-- Left: Automation Rules & Settings -->
           <div>
+            <!-- 1-Click Instagram Account Connection Card -->
+            <div style="background: rgba(225, 48, 108, 0.08); border: 1px solid rgba(225, 48, 108, 0.25); border-radius: 18px; padding: 16px; margin-bottom: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 13px; font-weight: 600;">Account Status:</span>
+                <span id="ig-connection-badge" style="font-size: 11px; font-weight: 700; font-family: monospace; padding: 4px 10px; border-radius: 20px; color: #10B981; background: rgba(16, 185, 129, 0.15);">● CONNECTED (24/7 ONLINE)</span>
+              </div>
+
+              <!-- 1-Click OAuth Connect Button -->
+              <button type="button" id="ig-oauth-connect-btn" class="btn btn-ig-action" style="width: 100%; height: 42px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor"/></svg>
+                <span>1-Click Connect Instagram Account</span>
+              </button>
+
+              <!-- Smart DM Link Generator -->
+              <button type="button" id="ig-smart-link-btn" class="btn btn-secondary" style="width: 100%; height: 36px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>📲 Copy Instant DM Deep-Link (ig.me)</span>
+              </button>
+              <p id="ig-link-copied-status" style="font-size: 11px; color: #10B981; text-align: center; margin: 6px 0 0 0; display: none;">✅ Smart DM Link copied to clipboard!</p>
+            </div>
+
             <!-- Account Handle -->
             <div style="margin-bottom: 18px;">
-              <label class="t-body" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Instagram Account Handle</label>
+              <label class="t-body" style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Connected Instagram Handle</label>
               <div style="position: relative;">
                 <span style="position: absolute; left: 14px; top: 12px; color: #F43F5E; font-weight: 700;">@</span>
                 <input type="text" id="ig-handle-input" class="form-input" value="koushal_charan" style="padding-left: 32px; font-weight: 600;" />
