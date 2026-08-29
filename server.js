@@ -191,8 +191,17 @@ app.get('/api/auth/google/callback', async (req, res) => {
             user_email: userEmail
         };
 
+        // 1. Save in dedicated Multi-User Directory
+        const userTokensDir = path.join(__dirname, 'user_tokens');
+        if (!fsSync.existsSync(userTokensDir)) {
+            fsSync.mkdirSync(userTokensDir, { recursive: true });
+        }
+        const userTokenFile = path.join(userTokensDir, `${userEmail.toLowerCase().replace(/[^a-z0-9@._-]/g, '_')}.json`);
+        await fs.writeFile(userTokenFile, JSON.stringify(tokenPayload, null, 2));
+
+        // 2. Save fallback token.json
         await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(tokenPayload, null, 2));
-        console.log(`✅ User automated via 1-Click Google OAuth: ${userEmail}`);
+        console.log(`✅ Multi-User Account Registered & Automated: ${userEmail}`);
 
         const config = await readConfig();
         config.primaryEmail = userEmail;
@@ -223,10 +232,15 @@ app.post('/api/auth/firebase-user', async (req, res) => {
                 access_token: accessToken,
                 user_email: email
             };
+            const userTokensDir = path.join(__dirname, 'user_tokens');
+            if (!fsSync.existsSync(userTokensDir)) {
+                fsSync.mkdirSync(userTokensDir, { recursive: true });
+            }
+            await fs.writeFile(path.join(userTokensDir, `${email.toLowerCase().replace(/[^a-z0-9@._-]/g, '_')}.json`), JSON.stringify(tokenPayload, null, 2));
             await fs.writeFile(path.join(__dirname, 'token.json'), JSON.stringify(tokenPayload, null, 2));
         }
 
-        console.log(`✅ Firebase user logged in & synchronized: ${email}`);
+        console.log(`✅ User logged in & synchronized: ${email}`);
         res.json({ success: true, email });
     } catch(e) {
         console.error('Firebase user sync error:', e);
@@ -326,7 +340,7 @@ function getActiveCardAttachment(config) {
         return { filename: preferredName, path: preferredPath, cid: 'card' };
     }
 
-    // Fallback checks
+// Fallback checks
     const candidates = ['card.png', 'card.svg', 'card.jpg', 'card.jpeg'];
     for (const file of candidates) {
         const fullPath = path.join(publicDir, file);
@@ -337,69 +351,64 @@ function getActiveCardAttachment(config) {
     return null;
 }
 
-// Smart Google Gmail Auth Resolver
-async function getAuthenticatedClient() {
-    const tokenPath = path.join(__dirname, 'token.json');
-    const credPath = path.join(__dirname, 'credentials.json');
-
-    let token = null;
-    let credentials = null;
+// ── Multi-User Gmail Auth Resolvers ──
+async function getAllUserClients() {
+    const clients = [];
+    const dir = path.join(__dirname, 'user_tokens');
+    if (!fsSync.existsSync(dir)) fsSync.mkdirSync(dir, { recursive: true });
 
     try {
-        token = JSON.parse(await fs.readFile(tokenPath, 'utf8'));
-    } catch (e) {}
+        const files = await fs.readdir(dir);
+        for (const f of files) {
+            if (f.endsWith('.json')) {
+                try {
+                    const content = JSON.parse(await fs.readFile(path.join(dir, f), 'utf8'));
+                    if (content.refresh_token || content.type === 'authorized_user') {
+                        const auth = google.auth.fromJSON(content);
+                        const email = (content.user_email || f.replace('.json', '')).toLowerCase();
+                        clients.push({ auth, email });
+                    }
+                } catch(e) {}
+            }
+        }
+    } catch(e) {}
 
+    // Include fallback token.json
     try {
-        credentials = JSON.parse(await fs.readFile(credPath, 'utf8'));
-    } catch (e) {}
+        const single = JSON.parse(await fs.readFile(path.join(__dirname, 'token.json'), 'utf8'));
+        const email = (single.user_email || 'koushalcharan22@gmail.com').toLowerCase();
+        if (!clients.some(c => c.email === email)) {
+            clients.push({ auth: google.auth.fromJSON(single), email });
+        }
+    } catch(e) {}
 
-    // 1. Direct Self-Contained Authorized User Token (token.json has its own client_id & refresh_token)
-    if (token && (token.type === 'authorized_user' || (token.refresh_token && token.client_id))) {
-        return google.auth.fromJSON(token);
-    }
-
-    // 2. Authorized User Token from Firebase OAuth (Access Token)
-    if (token && token.access_token) {
-        const { clientId, clientSecret } = getAppOAuthKeys();
-        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
-        oauth2Client.setCredentials({
-            access_token: token.access_token,
-            refresh_token: token.refresh_token || BUILTIN_REFRESH_TOKEN
-        });
-        return oauth2Client;
-    }
-
-    // 3. Environment Variable JSON Fallback
-    if (process.env.GOOGLE_TOKEN_JSON) {
-        try {
-            return google.auth.fromJSON(JSON.parse(process.env.GOOGLE_TOKEN_JSON));
-        } catch(e) {}
-    }
-
-    // 4. Separate Credentials + Token
-    if (credentials && token) {
-        const auth = google.auth.fromJSON(credentials);
-        auth.setCredentials(token);
-        return auth;
-    }
-
-    // 5. Builtin Token fallback
-    if (BUILTIN_REFRESH_TOKEN) {
-        return google.auth.fromJSON({
-            type: 'authorized_user',
-            client_id: BUILTIN_CLIENT_ID,
-            client_secret: BUILTIN_CLIENT_SECRET,
-            refresh_token: process.env.GOOGLE_REFRESH_TOKEN || BUILTIN_REFRESH_TOKEN
+    // Fallback to builtin keys
+    if (clients.length === 0 && BUILTIN_REFRESH_TOKEN) {
+        clients.push({
+            auth: google.auth.fromJSON({
+                type: 'authorized_user',
+                client_id: BUILTIN_CLIENT_ID,
+                client_secret: BUILTIN_CLIENT_SECRET,
+                refresh_token: BUILTIN_REFRESH_TOKEN
+            }),
+            email: 'admin'
         });
     }
 
-    throw new Error("Please connect your Gmail account via 1-Click Google Sign-In or upload token.json.");
+    return clients;
 }
 
-// Core Email Sender Function
-async function sendAutomationEmail({ toEmail, subject, customText, inReplyTo, messageId }) {
-    const auth = await getAuthenticatedClient();
-    const gmail = google.gmail({ version: 'v1', auth });
+// Fallback single client getter for tests
+async function getAuthenticatedClient() {
+    const clients = await getAllUserClients();
+    if (clients.length > 0) return clients[0].auth;
+    throw new Error("No connected Gmail accounts found.");
+}
+
+// Core Email Sender Function (Multi-User Aware)
+async function sendAutomationEmail({ auth, userEmail, toEmail, subject, customText, inReplyTo, messageId }) {
+    const clientAuth = auth || (await getAuthenticatedClient());
+    const gmail = google.gmail({ version: 'v1', auth: clientAuth });
     const config = await readConfig();
 
     const logoPath = path.join(__dirname, 'gif', '3d-logo-spinning.gif');
@@ -438,7 +447,7 @@ async function sendAutomationEmail({ toEmail, subject, customText, inReplyTo, me
 
     const mailOptions = {
         to: toEmail,
-        from: 'me',
+        from: userEmail || 'me',
         subject: subject || config.subjectLine || 'Re: Automatic Reply',
         html: htmlBody,
         inReplyTo: inReplyTo,
@@ -448,19 +457,25 @@ async function sendAutomationEmail({ toEmail, subject, customText, inReplyTo, me
 
     const mail = new MailComposer(mailOptions);
     const messageCompiled = await mail.compile().build();
-    const rawMessage = messageCompiled.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const encodedMessage = Buffer.from(messageCompiled)
+        .toString('base64')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
 
-    const res = await gmail.users.messages.send({
+    return gmail.users.messages.send({
         userId: 'me',
-        requestBody: { raw: rawMessage, threadId: messageId ? undefined : undefined }
+        requestBody: {
+            raw: encodedMessage,
+            threadId: inReplyTo ? undefined : undefined
+        }
     });
-
-    return res.data;
 }
 
 // ── API: Send Live Test Email ──
 app.post('/api/send-test', async (req, res) => {
     try {
+        const config = await readConfig();
         const targetEmail = req.body.toEmail || config.primaryEmail;
         if (!targetEmail) {
             return res.status(400).json({ success: false, error: 'Recipient email address is required.' });
@@ -494,11 +509,14 @@ let engineStatus = {
 app.get('/api/status', async (req, res) => {
     const config = await readConfig();
     const cardAttachment = getActiveCardAttachment(config);
+    const userClients = await getAllUserClients();
     res.json({
         ...engineStatus,
         activeCard: cardAttachment ? cardAttachment.filename : 'None',
         botActive: config.active,
-        filterMode: config.filterMode
+        filterMode: config.filterMode,
+        activeUsersCount: userClients.length,
+        connectedUsers: userClients.map(c => c.email)
     });
 });
 
@@ -506,61 +524,35 @@ app.get('/api/status', async (req, res) => {
 const processedMessageIds = new Set();
 const repliedRecipientsMap = new Map();
 
-// ── Background Failproof Polling Engine (Strict Exactly-Once Delivery) ──
-async function pollGmailInbox() {
+// ── Poll Single User Inbox ──
+async function pollSingleUserInbox(userAuth, userEmail, config) {
     try {
-        const config = await readConfig();
-
-        if (!config.active) {
-            engineStatus.isRunning = false;
-            engineStatus.error = "Bot is paused in dashboard.";
-            return;
-        }
-
-        let auth;
-        try {
-            auth = await getAuthenticatedClient();
-        } catch (authErr) {
-            engineStatus.isRunning = false;
-            engineStatus.error = authErr.message;
-            console.error('Auth error in polling engine:', authErr.message);
-            return;
-        }
-
-        const gmail = google.gmail({ version: 'v1', auth });
-
+        const gmail = google.gmail({ version: 'v1', auth: userAuth });
         const res = await gmail.users.messages.list({
             userId: 'me',
             q: 'is:unread',
-            maxResults: 20
+            maxResults: 15
         });
-        
-        engineStatus.isRunning = true;
-        engineStatus.error = null;
-        engineStatus.lastChecked = new Date().toISOString();
 
         const messages = res.data.messages;
         if (!messages || messages.length === 0) return;
 
-        console.log(`📬 Found ${messages.length} unread message(s) to process...`);
+        console.log(`📬 [${userEmail}] Found ${messages.length} unread message(s) to process...`);
 
         for (const msg of messages) {
-            // 1. Instant In-Memory Deduplication Lock
-            if (processedMessageIds.has(msg.id)) {
-                continue;
-            }
-            processedMessageIds.add(msg.id);
+            // 1. In-Memory Deduplication Lock
+            const lockKey = `${userEmail}:${msg.id}`;
+            if (processedMessageIds.has(lockKey)) continue;
+            processedMessageIds.add(lockKey);
 
-            // 2. Mark UNREAD Removed IMMEDIATELY in Gmail (Atomic Lock to prevent other cycles/instances from touching it)
+            // 2. Mark UNREAD Removed IMMEDIATELY in Gmail (Atomic Lock)
             try {
                 await gmail.users.messages.modify({
                     userId: 'me',
                     id: msg.id,
                     requestBody: { removeLabelIds: ['UNREAD'] }
                 });
-            } catch(e) {
-                // Ignore if already marked
-            }
+            } catch(e) {}
 
             const message = await gmail.users.messages.get({ userId: 'me', id: msg.id });
             const headers = message.data.payload.headers;
@@ -573,18 +565,18 @@ async function pollGmailInbox() {
             const originalSubject = subjectHeader ? subjectHeader.value : '';
             const messageId = messageIdHeader ? messageIdHeader.value : '';
 
-            // 3. Prevent Self-Reply Loops
-            const myEmail = (config.primaryEmail || 'koushalcharan22@gmail.com').toLowerCase().trim();
-            if (fromEmail.includes(myEmail) || fromEmail === 'me') {
-                console.log(`⏭️ Skipping own outgoing message from: ${fromEmail}`);
+            // 3. Skip own messages
+            if (fromEmail.includes(userEmail) || fromEmail === 'me') {
+                console.log(`⏭️ [${userEmail}] Skipping own outgoing email: ${fromEmail}`);
                 continue;
             }
 
-            // 4. Rate-Limit Replies to the Same Sender (Max 1 reply per 5 minutes to prevent multi-delivery spam)
+            // 4. Sender Cooldown (Max 1 reply per 5 min)
             const now = Date.now();
-            const lastReplied = repliedRecipientsMap.get(fromEmail);
+            const lastRepliedKey = `${userEmail}:${fromEmail}`;
+            const lastReplied = repliedRecipientsMap.get(lastRepliedKey);
             if (lastReplied && (now - lastReplied < 5 * 60 * 1000)) {
-                console.log(`⏳ Sender ${fromEmail} was already replied to recently. Skipping duplicate reply.`);
+                console.log(`⏳ [${userEmail}] Sender ${fromEmail} was already replied to recently. Skipping duplicate.`);
                 continue;
             }
 
@@ -592,12 +584,12 @@ async function pollGmailInbox() {
             if (config.filterMode === 'personal') {
                 const isBusinessOrOther = /@(?!gmail\.com|yahoo\.com|outlook\.com|hotmail\.com|aol\.com|icloud\.com|live\.com|msn\.com|me\.com)[^\s@]+\.[^\s@]+/.test(fromEmail);
                 if (isBusinessOrOther || fromEmail.includes('noreply') || fromEmail.includes('no-reply') || fromEmail.includes('mailer-daemon')) {
-                    console.log(`⏭️ Skipping automated/business sender: ${fromEmail}`);
+                    console.log(`⏭️ [${userEmail}] Skipping automated/business sender: ${fromEmail}`);
                     continue;
                 }
             }
 
-            console.log(`✉️ Sending EXACTLY ONE Auto-reply to: ${fromEmail}`);
+            console.log(`✉️ [${userEmail}] Auto-replying to: ${fromEmail}`);
 
             let replySubject = config.subjectLine;
             if (!replySubject) {
@@ -605,16 +597,48 @@ async function pollGmailInbox() {
             }
 
             await sendAutomationEmail({
+                auth: userAuth,
+                userEmail: userEmail,
                 toEmail: fromEmail,
                 subject: replySubject,
                 customText: config.customText,
                 inReplyTo: messageId,
                 messageId: messageId
             });
-            
-            repliedRecipientsMap.set(fromEmail, now);
+
+            repliedRecipientsMap.set(lastRepliedKey, now);
             engineStatus.messagesProcessed++;
-            console.log(`✅ EXACTLY ONE Auto-reply successfully delivered to ${fromEmail}!`);
+            console.log(`✅ [${userEmail}] Auto-reply successfully delivered to ${fromEmail}!`);
+        }
+    } catch(err) {
+        console.error(`Error polling inbox for user ${userEmail}:`, err.message);
+    }
+}
+
+// ── Multi-User Master Polling Loop ──
+async function pollGmailInbox() {
+    try {
+        const config = await readConfig();
+
+        if (!config.active) {
+            engineStatus.isRunning = false;
+            engineStatus.error = "Bot is paused in dashboard.";
+            return;
+        }
+
+        const userClients = await getAllUserClients();
+        if (userClients.length === 0) {
+            engineStatus.isRunning = false;
+            engineStatus.error = "No connected users found.";
+            return;
+        }
+
+        engineStatus.isRunning = true;
+        engineStatus.error = null;
+        engineStatus.lastChecked = new Date().toISOString();
+
+        for (const client of userClients) {
+            await pollSingleUserInbox(client.auth, client.email, config);
         }
     } catch (error) {
         console.error('Error polling Gmail:', error.message);

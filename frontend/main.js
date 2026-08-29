@@ -672,19 +672,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 1-Click OAuth Connect Links
+  // 1-Click Official Google Gmail OAuth Connect Flow
   const gatewayGoogleBtn = document.getElementById('gateway-google-btn');
   if (gatewayGoogleBtn) {
     gatewayGoogleBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      loginWithFirebaseGoogle(gatewayGoogleBtn);
+      gatewayGoogleBtn.innerHTML = '<span>Redirecting to Google... 🔄</span>';
+      window.location.href = `${API_BASE}/api/auth/google?portal=user`;
     });
   }
   const userGoogleConnectBtn = document.getElementById('user-google-connect-btn');
   if (userGoogleConnectBtn) {
     userGoogleConnectBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      loginWithFirebaseGoogle(userGoogleConnectBtn);
+      userGoogleConnectBtn.innerHTML = '<span>Connecting to Google... 🔄</span>';
+      window.location.href = `${API_BASE}/api/auth/google?portal=user`;
     });
   }
 
