@@ -1320,6 +1320,169 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 🎬 HIGH-END KEYNOTE CHROMATIC WORDMARK INTRO MOTION ENGINE
+  // ═══════════════════════════════════════════════════════════════
+
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const seg = (t, a, b) => clamp((t - a) / (b - a || 1e-6), 0, 1);
+  const smooth = (t) => t * t * (3 - 2 * t);
+  const eOut = (t) => 1 - Math.pow(1 - t, 3); // Cubic ease out
+
+  // Seeded deterministic PRNG for exact, repeatable spatial jitter
+  function createRng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a += 0x6d2b79f5;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function initKeynoteIntro() {
+    const introStage = document.getElementById('keynote-intro-stage');
+    const emblemWrap = document.getElementById('intro-emblem-wrap');
+    const wordSecret = document.getElementById('word-secret');
+    const wordCorporation = document.getElementById('word-corporation');
+    const wordProtocols = document.getElementById('word-protocols');
+    const introSubtitle = document.getElementById('intro-subtitle');
+    const introBottomNav = document.getElementById('intro-bottom-nav');
+    const introReplayBtn = document.getElementById('intro-replay-btn');
+    const introEnterBtn = document.getElementById('intro-enter-btn');
+    const navIntroBtn = document.getElementById('nav-intro-btn');
+
+    if (!introStage || !emblemWrap || !wordSecret || !wordCorporation || !wordProtocols) return;
+
+    const rng = createRng(1337);
+    const letterNodes = [];
+
+    function buildWordSpans(wordEl, text, isRed) {
+      wordEl.innerHTML = '';
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const span = document.createElement('span');
+        span.className = 'intro-letter';
+        span.innerText = char;
+        wordEl.appendChild(span);
+
+        const jx = (rng() - 0.5) * 2; // -1 to 1
+        const jy = (rng() - 0.5) * 2; // -1 to 1
+        const delay = rng();
+
+        letterNodes.push({
+          el: span,
+          char,
+          isRed,
+          jx,
+          jy,
+          delay
+        });
+      }
+    }
+
+    // Populate word segments
+    buildWordSpans(wordSecret, 'SECRET', true);
+    buildWordSpans(wordCorporation, 'CORPORATION', false);
+    buildWordSpans(wordProtocols, 'PROTOCOLS', true);
+
+    let animationFrameId = null;
+    let startTime = null;
+    const DURATION_MS = 2200; // ~2.2s
+
+    function renderFrame(now) {
+      if (!startTime) startTime = now;
+      const elapsed = now - startTime;
+      const progress = clamp(elapsed / DURATION_MS, 0, 1);
+
+      // ── Phase 1: Emblem Scaling & Convergence (0.20s – 0.58s) ──
+      const emblemProgress = seg(progress, 0.20, 0.58);
+      const emblemScale = lerp(0.55, 1.0, eOut(emblemProgress));
+      const emblemOpacity = smooth(seg(progress, 0.20, 0.52));
+      const emblemSep = (1 - eOut(emblemProgress)) * 14;
+
+      emblemWrap.style.transform = `scale(${emblemScale})`;
+      emblemWrap.style.opacity = emblemOpacity;
+
+      if (emblemSep > 0.4) {
+        emblemWrap.style.filter = `drop-shadow(-${emblemSep.toFixed(1)}px 0 rgba(255, 30, 45, 0.7)) drop-shadow(${emblemSep.toFixed(1)}px 0 rgba(45, 255, 200, 0.6))`;
+      } else {
+        emblemWrap.style.filter = `drop-shadow(0 0 25px rgba(255, 255, 255, 0.4))`;
+      }
+
+      // ── Phase 2: Letter-by-Letter Chromatic Assembly (0.04s – 0.65s) ──
+      for (let i = 0; i < letterNodes.length; i++) {
+        const item = letterNodes[i];
+        const a = eOut(clamp(seg(progress, 0.04, 0.52) * 1.5 - item.delay * 0.45, 0, 1));
+        const tx = item.jx * 64 * (1 - a);
+        const ty = item.jy * 36 * (1 - a);
+        const sc = lerp(1.24, 1.0, a);
+        const op = Math.min(1, a * 1.6);
+        const sep = (1 - a) * 11;
+
+        item.el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${sc.toFixed(3)})`;
+        item.el.style.opacity = op.toFixed(3);
+
+        if (sep > 0.4) {
+          if (item.isRed) {
+            item.el.style.textShadow = `${(-1 * sep).toFixed(2)}px 0 rgba(255, 30, 45, 0.95), ${(1 * sep).toFixed(2)}px 0 rgba(255, 140, 150, 0.65), 0 ${(0.55 * sep).toFixed(2)}px rgba(180, 0, 20, 0.85)`;
+          } else {
+            item.el.style.textShadow = `${(-1 * sep).toFixed(2)}px 0 rgba(255, 64, 72, 0.85), ${(1 * sep).toFixed(2)}px 0 rgba(64, 255, 190, 0.80), 0 ${(0.55 * sep).toFixed(2)}px rgba(96, 124, 255, 0.80)`;
+          }
+          item.el.style.filter = `blur(${(sep * 0.28).toFixed(2)}px)`;
+        } else {
+          item.el.style.textShadow = 'none';
+          item.el.style.filter = 'none';
+        }
+      }
+
+      // ── Phase 3: Reveal Subtitle & Interactive HUD (0.65s – 1.0s) ──
+      if (introSubtitle) {
+        const subProg = seg(progress, 0.55, 0.85);
+        const subOp = smooth(subProg);
+        const subY = (1 - eOut(subProg)) * 14;
+        introSubtitle.style.opacity = subOp.toFixed(3);
+        introSubtitle.style.transform = `translateY(${subY.toFixed(2)}px)`;
+      }
+
+      if (introBottomNav) {
+        const navProg = seg(progress, 0.72, 0.96);
+        const navOp = smooth(navProg);
+        const navY = (1 - eOut(navProg)) * 10;
+        introBottomNav.style.opacity = navOp.toFixed(3);
+        introBottomNav.style.transform = `translateY(${navY.toFixed(2)}px)`;
+      }
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(renderFrame);
+      }
+    }
+
+    function playSequence() {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      startTime = null;
+      introStage.classList.remove('dismissed');
+      animationFrameId = requestAnimationFrame(renderFrame);
+    }
+
+    function dismissIntro() {
+      introStage.classList.add('dismissed');
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    }
+
+    if (introEnterBtn) introEnterBtn.addEventListener('click', dismissIntro);
+    if (introReplayBtn) introReplayBtn.addEventListener('click', playSequence);
+    if (navIntroBtn) navIntroBtn.addEventListener('click', playSequence);
+
+    // Initial sequence trigger
+    playSequence();
+  }
+
+  // Initialize Keynote Intro
+  initKeynoteIntro();
 });
 
 
