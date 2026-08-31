@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="assets/3d-logo-spinning.gif" alt="SCP Logo" width="140">
+  <img src="assets/3d-logo-spinning.gif" alt="SCP Logo" width="220">
 
   # ⚡ SCP Automation
 
